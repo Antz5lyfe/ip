@@ -52,9 +52,8 @@ public class Braun {
         System.out.println(DIVIDER);
 
         Scanner scanner = new Scanner(System.in);
-        String[] items = new String[MAX_ITEMS];
-        boolean[] isDone = new boolean[MAX_ITEMS];
-        int itemCount = 0;
+        Task[] tasks = new Task[MAX_ITEMS];
+        int taskCount = 0;
 
         // Command processing loop
         while (scanner.hasNextLine()) {
@@ -69,19 +68,18 @@ public class Braun {
             } else if (input.equalsIgnoreCase("list")) {
                 System.out.println(DIVIDER);
                 System.out.println(INDENT + "Here are the tasks in your list:");
-                for (int i = 0; i < itemCount; i++) {
-                    String statusIcon = isDone[i] ? "X" : " ";
-                    System.out.println(INDENT + (i + 1) + ".[" + statusIcon + "] " + items[i]);
+                for (int i = 0; i < taskCount; i++) {
+                    System.out.println(INDENT + (i + 1) + "." + tasks[i]);
                 }
                 System.out.println(DIVIDER);
             } else if (input.toLowerCase().startsWith("mark ")) {
                 try {
                     int index = Integer.parseInt(input.substring(5).trim()) - 1;
-                    if (index >= 0 && index < itemCount) {
-                        isDone[index] = true;
+                    if (index >= 0 && index < taskCount) {
+                        tasks[index].markAsDone();
                         System.out.println(DIVIDER);
                         System.out.println(INDENT + "Nice! I've marked this task as done:");
-                        System.out.println(INDENT + "  [X] " + items[index]);
+                        System.out.println(INDENT + "  " + tasks[index]);
                         System.out.println(DIVIDER);
                     } else {
                         System.out.println(DIVIDER);
@@ -96,11 +94,11 @@ public class Braun {
             } else if (input.toLowerCase().startsWith("unmark ")) {
                 try {
                     int index = Integer.parseInt(input.substring(7).trim()) - 1;
-                    if (index >= 0 && index < itemCount) {
-                        isDone[index] = false;
+                    if (index >= 0 && index < taskCount) {
+                        tasks[index].markAsUndone();
                         System.out.println(DIVIDER);
                         System.out.println(INDENT + "OK, I've marked this task as not done yet:");
-                        System.out.println(INDENT + "  [ ] " + items[index]);
+                        System.out.println(INDENT + "  " + tasks[index]);
                         System.out.println(DIVIDER);
                     } else {
                         System.out.println(DIVIDER);
@@ -113,10 +111,10 @@ public class Braun {
                     System.out.println(DIVIDER);
                 }
             } else {
-                if (itemCount < MAX_ITEMS) {
-                    items[itemCount] = input;
-                    isDone[itemCount] = false;
-                    itemCount++;
+                if (taskCount < MAX_ITEMS) {
+                    Task task = new Task(input);
+                    tasks[taskCount] = task;
+                    taskCount++;
                     System.out.println(DIVIDER);
                     System.out.println(INDENT + "added: " + input);
                     System.out.println(INDENT + getRemarkForTask(input));
