@@ -1,18 +1,18 @@
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
 /**
  * Main entry point for the Braun chatbot application.
  * Braun is a TV-headed supernatural talk show host from 'Got Dropped into a Ghost Story, Still Gotta Work'.
- * Stores user-entered items (up to 100), lists them on demand with completion status ([X] / [ ]),
- * marks/unmarks tasks as done, and delivers contextual lore remarks or general broadcast catchphrases.
+ * Stores user-entered items dynamically using {@link ArrayList}, lists them on demand with completion status ([X] / [ ]),
+ * marks/unmarks tasks, deletes tasks, and delivers contextual lore remarks or general broadcast catchphrases.
  * Handles validation and runtime errors gracefully using {@link BraunException}.
  */
 public class Braun {
 
     private static final String DIVIDER = "    ____________________________________________________________";
     private static final String INDENT = "     ";
-    private static final int MAX_ITEMS = 100;
 
     /** Random generator and pool of general broadcast catchphrases used when no keyword matches */
     private static final Random RANDOM = new Random();
@@ -53,8 +53,7 @@ public class Braun {
         System.out.println(DIVIDER);
 
         Scanner scanner = new Scanner(System.in);
-        Task[] tasks = new Task[MAX_ITEMS];
-        int taskCount = 0;
+        ArrayList<Task> tasks = new ArrayList<>();
 
         // Command processing loop
         while (scanner.hasNextLine()) {
@@ -69,7 +68,7 @@ public class Braun {
             }
 
             try {
-                taskCount = processCommand(input, tasks, taskCount);
+                processCommand(input, tasks);
             } catch (BraunException e) {
                 System.out.println(DIVIDER);
                 System.out.println(INDENT + e.getMessage());
@@ -84,50 +83,46 @@ public class Braun {
      * Parses and executes a single user broadcast command.
      *
      * @param input the raw input string from the user
-     * @param tasks array of stored tasks
-     * @param taskCount current count of stored tasks
-     * @return updated task count after command execution
+     * @param tasks list of stored tasks
      * @throws BraunException if the command is unrecognized or has invalid parameters
      */
-    private static int processCommand(String input, Task[] tasks, int taskCount) throws BraunException {
+    private static void processCommand(String input, ArrayList<Task> tasks) throws BraunException {
         String trimmed = input.trim();
         if (trimmed.isEmpty()) {
-            return taskCount;
+            return;
         }
 
         String lower = trimmed.toLowerCase();
 
         if (lower.equals("list")) {
-            handleList(tasks, taskCount);
-            return taskCount;
+            handleList(tasks);
         } else if (lower.equals("mark") || lower.startsWith("mark ")) {
-            handleMark(trimmed, tasks, taskCount);
-            return taskCount;
+            handleMark(trimmed, tasks);
         } else if (lower.equals("unmark") || lower.startsWith("unmark ")) {
-            handleUnmark(trimmed, tasks, taskCount);
-            return taskCount;
+            handleUnmark(trimmed, tasks);
+        } else if (lower.equals("delete") || lower.startsWith("delete ")) {
+            handleDelete(trimmed, tasks);
         } else if (lower.equals("todo") || lower.startsWith("todo ")) {
-            return handleTodo(trimmed, tasks, taskCount);
+            handleTodo(trimmed, tasks);
         } else if (lower.equals("deadline") || lower.startsWith("deadline ")) {
-            return handleDeadline(trimmed, tasks, taskCount);
+            handleDeadline(trimmed, tasks);
         } else if (lower.equals("event") || lower.startsWith("event ")) {
-            return handleEvent(trimmed, tasks, taskCount);
+            handleEvent(trimmed, tasks);
         } else {
-            throw new BraunException("*static* Unknown broadcast command! Please use todo, deadline, event, list, mark, unmark, or bye.");
+            throw new BraunException("*static* Unknown broadcast command! Please use todo, deadline, event, list, mark, unmark, delete, or bye.");
         }
     }
 
     /**
      * Displays all tasks currently stored in the broadcast schedule.
      *
-     * @param tasks array of stored tasks
-     * @param taskCount current number of stored tasks
+     * @param tasks list of stored tasks
      */
-    private static void handleList(Task[] tasks, int taskCount) {
+    private static void handleList(ArrayList<Task> tasks) {
         System.out.println(DIVIDER);
         System.out.println(INDENT + "Here are the tasks in your list:");
-        for (int i = 0; i < taskCount; i++) {
-            System.out.println(INDENT + (i + 1) + "." + tasks[i]);
+        for (int i = 0; i < tasks.size(); i++) {
+            System.out.println(INDENT + (i + 1) + "." + tasks.get(i));
         }
         System.out.println(DIVIDER);
     }
@@ -136,11 +131,10 @@ public class Braun {
      * Marks a specified task as completed.
      *
      * @param input the raw mark command string
-     * @param tasks array of stored tasks
-     * @param taskCount current number of stored tasks
+     * @param tasks list of stored tasks
      * @throws BraunException if the index is missing, not a number, or out of bounds
      */
-    private static void handleMark(String input, Task[] tasks, int taskCount) throws BraunException {
+    private static void handleMark(String input, ArrayList<Task> tasks) throws BraunException {
         String arg = input.length() > 4 ? input.substring(4).trim() : "";
         if (arg.isEmpty()) {
             throw new BraunException("*static* Please provide a valid task number to mark.");
@@ -153,14 +147,15 @@ public class Braun {
             throw new BraunException("*static* Please provide a valid task number to mark.");
         }
 
-        if (index < 0 || index >= taskCount) {
+        if (index < 0 || index >= tasks.size()) {
             throw new BraunException("*bzzzt* Invalid broadcast index! Task not found.");
         }
 
-        tasks[index].markAsDone();
+        Task task = tasks.get(index);
+        task.markAsDone();
         System.out.println(DIVIDER);
         System.out.println(INDENT + "Nice! I've marked this task as done:");
-        System.out.println(INDENT + "  " + tasks[index]);
+        System.out.println(INDENT + "  " + task);
         System.out.println(DIVIDER);
     }
 
@@ -168,11 +163,10 @@ public class Braun {
      * Marks a specified task as not completed (undone).
      *
      * @param input the raw unmark command string
-     * @param tasks array of stored tasks
-     * @param taskCount current number of stored tasks
+     * @param tasks list of stored tasks
      * @throws BraunException if the index is missing, not a number, or out of bounds
      */
-    private static void handleUnmark(String input, Task[] tasks, int taskCount) throws BraunException {
+    private static void handleUnmark(String input, ArrayList<Task> tasks) throws BraunException {
         String arg = input.length() > 6 ? input.substring(6).trim() : "";
         if (arg.isEmpty()) {
             throw new BraunException("*static* Please provide a valid task number to unmark.");
@@ -185,14 +179,47 @@ public class Braun {
             throw new BraunException("*static* Please provide a valid task number to unmark.");
         }
 
-        if (index < 0 || index >= taskCount) {
+        if (index < 0 || index >= tasks.size()) {
             throw new BraunException("*bzzzt* Invalid broadcast index! Task not found.");
         }
 
-        tasks[index].markAsUndone();
+        Task task = tasks.get(index);
+        task.markAsUndone();
         System.out.println(DIVIDER);
         System.out.println(INDENT + "OK, I've marked this task as not done yet:");
-        System.out.println(INDENT + "  " + tasks[index]);
+        System.out.println(INDENT + "  " + task);
+        System.out.println(DIVIDER);
+    }
+
+    /**
+     * Removes a specified task from the schedule.
+     *
+     * @param input the raw delete command string
+     * @param tasks list of stored tasks
+     * @throws BraunException if the index is missing, not a number, or out of bounds
+     */
+    private static void handleDelete(String input, ArrayList<Task> tasks) throws BraunException {
+        String arg = input.length() > 6 ? input.substring(6).trim() : "";
+        if (arg.isEmpty()) {
+            throw new BraunException("*static* Please provide a valid task number to delete.");
+        }
+
+        int index;
+        try {
+            index = Integer.parseInt(arg) - 1;
+        } catch (NumberFormatException e) {
+            throw new BraunException("*static* Please provide a valid task number to delete.");
+        }
+
+        if (index < 0 || index >= tasks.size()) {
+            throw new BraunException("*bzzzt* Invalid broadcast index! Task not found.");
+        }
+
+        Task removed = tasks.remove(index);
+        System.out.println(DIVIDER);
+        System.out.println(INDENT + "Noted. I've removed this task:");
+        System.out.println(INDENT + "  " + removed);
+        System.out.println(INDENT + "Now you have " + tasks.size() + " tasks in the list.");
         System.out.println(DIVIDER);
     }
 
@@ -200,29 +227,25 @@ public class Braun {
      * Validates and adds a new Todo task to the schedule.
      *
      * @param input the raw todo command string
-     * @param tasks array of stored tasks
-     * @param taskCount current number of stored tasks
-     * @return updated task count
-     * @throws BraunException if the description is empty or storage is full
+     * @param tasks list of stored tasks
+     * @throws BraunException if the description is empty
      */
-    private static int handleTodo(String input, Task[] tasks, int taskCount) throws BraunException {
+    private static void handleTodo(String input, ArrayList<Task> tasks) throws BraunException {
         String desc = input.length() > 4 ? input.substring(4).trim() : "";
         if (desc.isEmpty()) {
             throw new BraunException("*static* The description of a todo cannot be empty.");
         }
-        return addTask(new Todo(desc), tasks, taskCount, desc);
+        addTask(new Todo(desc), tasks, desc);
     }
 
     /**
      * Validates and adds a new Deadline task to the schedule.
      *
      * @param input the raw deadline command string
-     * @param tasks array of stored tasks
-     * @param taskCount current number of stored tasks
-     * @return updated task count
+     * @param tasks list of stored tasks
      * @throws BraunException if the description or due time is missing or invalid
      */
-    private static int handleDeadline(String input, Task[] tasks, int taskCount) throws BraunException {
+    private static void handleDeadline(String input, ArrayList<Task> tasks) throws BraunException {
         String body = input.length() > 8 ? input.substring(8).trim() : "";
         int byIndex = body.toLowerCase().indexOf("/by ");
         if (byIndex == -1) {
@@ -235,19 +258,17 @@ public class Braun {
             throw new BraunException("*static* Deadline description and due time cannot be empty.");
         }
 
-        return addTask(new Deadline(desc, by), tasks, taskCount, desc);
+        addTask(new Deadline(desc, by), tasks, desc);
     }
 
     /**
      * Validates and adds a new Event task to the schedule.
      *
      * @param input the raw event command string
-     * @param tasks array of stored tasks
-     * @param taskCount current number of stored tasks
-     * @return updated task count
+     * @param tasks list of stored tasks
      * @throws BraunException if the description, start time, or end time is missing or invalid
      */
-    private static int handleEvent(String input, Task[] tasks, int taskCount) throws BraunException {
+    private static void handleEvent(String input, ArrayList<Task> tasks) throws BraunException {
         String body = input.length() > 5 ? input.substring(5).trim() : "";
         int fromIndex = body.toLowerCase().indexOf("/from ");
         int toIndex = body.toLowerCase().indexOf("/to ");
@@ -262,33 +283,24 @@ public class Braun {
             throw new BraunException("*static* Event description, start time, and end time cannot be empty.");
         }
 
-        return addTask(new Event(desc, from, to), tasks, taskCount, desc);
+        addTask(new Event(desc, from, to), tasks, desc);
     }
 
     /**
-     * Stores a validated task in the storage array and prints confirmation.
+     * Stores a validated task in the list and prints confirmation.
      *
      * @param task the task to store
-     * @param tasks the storage array
-     * @param taskCount current count of stored tasks
+     * @param tasks the storage list
      * @param description description used for lore remark matching
-     * @return updated task count
-     * @throws BraunException if the storage limit has been reached
      */
-    private static int addTask(Task task, Task[] tasks, int taskCount, String description) throws BraunException {
-        if (taskCount >= MAX_ITEMS) {
-            throw new BraunException("*static* The broadcast log is full! Cannot store more than " + MAX_ITEMS + " entries.");
-        }
-
-        tasks[taskCount] = task;
-        taskCount++;
+    private static void addTask(Task task, ArrayList<Task> tasks, String description) {
+        tasks.add(task);
         System.out.println(DIVIDER);
         System.out.println(INDENT + "Got it. I've added this task:");
         System.out.println(INDENT + "  " + task);
-        System.out.println(INDENT + "Now you have " + taskCount + " tasks in the list.");
+        System.out.println(INDENT + "Now you have " + tasks.size() + " tasks in the list.");
         System.out.println(INDENT + getRemarkForTask(description));
         System.out.println(DIVIDER);
-        return taskCount;
     }
 
     /**
