@@ -33,3 +33,9 @@ Ensure that Java 25 is used when running the application or build tasks. On macO
 Use lightweight tags unless the user requests an annotated tag.
 When proposing or creating a commit message, include enough detail to explain the rationale for the change.
 Do not commit or push unless explicitly asked.
+
+## Post-code update workflow:
+
+After each code update:
+1. Update `test/ui-test-plan.md` (if needed, e.g. when inputs, commands, or outputs are added/modified).
+2. Invoke the `test-ui` skill (by executing `python3 .agents/skills/test-ui/scripts/run-ui-tests.py`) to verify that all UI tests pass.
