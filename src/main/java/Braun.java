@@ -4,7 +4,8 @@ import java.util.Scanner;
 /**
  * Main entry point for the Braun chatbot application.
  * Braun is a TV-headed supernatural talk show host from 'Got Dropped into a Ghost Story, Still Gotta Work'.
- * Stores user-entered items (up to 100), lists them on demand, and delivers contextual lore remarks or general broadcast catchphrases.
+ * Stores user-entered items (up to 100), lists them on demand with completion status ([X] / [ ]),
+ * marks/unmarks tasks as done, and delivers contextual lore remarks or general broadcast catchphrases.
  */
 public class Braun {
 
@@ -52,6 +53,7 @@ public class Braun {
 
         Scanner scanner = new Scanner(System.in);
         String[] items = new String[MAX_ITEMS];
+        boolean[] isDone = new boolean[MAX_ITEMS];
         int itemCount = 0;
 
         // Command processing loop
@@ -66,13 +68,54 @@ public class Braun {
                 break;
             } else if (input.equalsIgnoreCase("list")) {
                 System.out.println(DIVIDER);
+                System.out.println(INDENT + "Here are the tasks in your list:");
                 for (int i = 0; i < itemCount; i++) {
-                    System.out.println(INDENT + (i + 1) + ". " + items[i]);
+                    String statusIcon = isDone[i] ? "X" : " ";
+                    System.out.println(INDENT + (i + 1) + ".[" + statusIcon + "] " + items[i]);
                 }
                 System.out.println(DIVIDER);
+            } else if (input.toLowerCase().startsWith("mark ")) {
+                try {
+                    int index = Integer.parseInt(input.substring(5).trim()) - 1;
+                    if (index >= 0 && index < itemCount) {
+                        isDone[index] = true;
+                        System.out.println(DIVIDER);
+                        System.out.println(INDENT + "Nice! I've marked this task as done:");
+                        System.out.println(INDENT + "  [X] " + items[index]);
+                        System.out.println(DIVIDER);
+                    } else {
+                        System.out.println(DIVIDER);
+                        System.out.println(INDENT + "*bzzzt* Invalid broadcast index! Task not found.");
+                        System.out.println(DIVIDER);
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println(DIVIDER);
+                    System.out.println(INDENT + "*static* Please provide a valid task number to mark.");
+                    System.out.println(DIVIDER);
+                }
+            } else if (input.toLowerCase().startsWith("unmark ")) {
+                try {
+                    int index = Integer.parseInt(input.substring(7).trim()) - 1;
+                    if (index >= 0 && index < itemCount) {
+                        isDone[index] = false;
+                        System.out.println(DIVIDER);
+                        System.out.println(INDENT + "OK, I've marked this task as not done yet:");
+                        System.out.println(INDENT + "  [ ] " + items[index]);
+                        System.out.println(DIVIDER);
+                    } else {
+                        System.out.println(DIVIDER);
+                        System.out.println(INDENT + "*bzzzt* Invalid broadcast index! Task not found.");
+                        System.out.println(DIVIDER);
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println(DIVIDER);
+                    System.out.println(INDENT + "*static* Please provide a valid task number to unmark.");
+                    System.out.println(DIVIDER);
+                }
             } else {
                 if (itemCount < MAX_ITEMS) {
                     items[itemCount] = input;
+                    isDone[itemCount] = false;
                     itemCount++;
                     System.out.println(DIVIDER);
                     System.out.println(INDENT + "added: " + input);
