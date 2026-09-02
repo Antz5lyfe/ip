@@ -1,100 +1,63 @@
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Random;
-import java.util.Scanner;
 
 /**
  * Main entry point for the Braun chatbot application.
- * Braun is a TV-headed supernatural talk show host from 'Got Dropped into a Ghost Story, Still Gotta Work'.
- * Stores user-entered items dynamically using {@link ArrayList}, lists them on demand with completion status ([X] / [ ]),
- * marks/unmarks tasks, deletes tasks, parses dates and times, and delivers contextual lore remarks or general broadcast catchphrases.
- * Automatically persists tasks to disk via {@link Storage} upon any list changes and reloads them upon startup.
- * Handles validation, I/O, and runtime errors gracefully using {@link BraunException}.
+ * Braun is a CRT TV-headed supernatural talk show host from 'Got Dropped into a Ghost Story, Still Gotta Work'.
+ * Coordinates user interactions through {@link Ui}, loads and saves tasks via {@link Storage},
+ * and executes broadcast commands across stored {@link Task} objects.
  */
 public class Braun {
 
-    private static final String DIVIDER = "    ____________________________________________________________";
-    private static final String INDENT = "     ";
     private static final String DEFAULT_STORAGE_PATH = Paths.get("data", "braun.txt").toString();
 
-    /** Random generator and pool of general broadcast catchphrases used when no keyword matches */
-    private static final Random RANDOM = new Random();
-    private static final String[] GENERAL_REMARKS = {
-        "*bzzzt* Added to the broadcast schedule! The audience is already whispering...",
-        "*kzzzt* Splendid choice, dear viewer! Another intriguing entry for tonight.",
-        "*static hiss* Recorded on tape! Stay tuned, folks!",
-        "*chime* An exciting development! Let's see how this unfolds on air.",
-        "*applause track* The studio audience is leaning in with bated breath!",
-        "*screen flickers* Ooh, this smells like a juicy scenario for the show!",
-        "*bzzzt* Logging this entry into tonight's special feature!"
-    };
+    private final Storage storage;
+    private final Ui ui;
+    private final ArrayList<Task> tasks;
 
-    public static void main(String[] args) {
-        String banner = ""
-                + "    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"
-                + "    ⠀⠀⠀⠀⠀⠀⠀⢠⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⡄⠀⠀⠀⠀⠀⠀⠀\n"
-                + "    ⠀⠀⠀⠀⠀⠀⠀⠀⠉⠻⣦⣄⠀⠀⠀⠀⠀⠀⣠⣴⠟⠉⠀⠀⠀⠀⠀⠀⠀⠀\n"
-                + "    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⣠⣴⣶⣶⣦⣄⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n"
-                + "    ⠀⠀⠀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣉⣉⣉⣉⣉⣉⣀⣀⣀⣀⣀⣀⣀⣀⣀⠀⠀⠀\n"
-                + "    ⠀⠀⢸⣿⠟⠛⣛⣛⣛⣛⣛⣛⣛⣛⣛⣛⣛⣛⠛⠛⠛⠛⢿⡿⠛⠿⣿⡇⠀⠀\n"
-                + "    ⠀⠀⢸⡏⢠⣾⣿⣿⣿⣿⣿⠿⠛⠋⠉⠁⠀⠀⠀⠀⠀⠀⢸⣇⠀⠀⣽⡇⠀⠀\n"
-                + "    ⠀⠀⢸⡇⢸⣿⣿⣿⠟⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⡇⠀⠀\n"
-                + "    ⠀⠀⢸⡇⢸⣿⡿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⡇⠀⠀\n"
-                + "    ⠀⠀⢸⡇⢸⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡿⠿⠿⣿⡇⠀⠀\n"
-                + "    ⠀⠀⢸⡇⠸⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡷⠶⠶⣾⡇⠀⠀\n"
-                + "    ⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡷⠶⠶⢾⡇⠀⠀\n"
-                + "    ⠀⠀⢸⣿⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣼⣷⣶⣶⣿⡇⠀⠀\n"
-                + "    ⠀⠀⠘⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠛⠃⠀⠀\n"
-                + "    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀\n";
+    /**
+     * Constructs a new {@code Braun} application instance with the specified file storage path.
+     *
+     * @param filePath path to the local task persistence file
+     */
+    public Braun(String filePath) {
+        this.ui = new Ui();
+        this.storage = new Storage(filePath);
+        this.tasks = storage.load();
+    }
 
-        // Greet the user with Braun's talk-show host persona
-        System.out.println(DIVIDER);
-        System.out.print(banner);
-        System.out.println(INDENT + "*kzzzt... bzzzt!*");
-        System.out.println(INDENT + "Good evening, dear guest! I'm Braun, host of the Late-Night Show.");
-        System.out.println(INDENT + "What can I do for you?");
-        System.out.println(DIVIDER);
+    /**
+     * Starts the main application loop, greeting the user and dispatching broadcast commands.
+     */
+    public void run() {
+        ui.showWelcome();
 
-        String storagePath = (args.length > 0) ? args[0] : DEFAULT_STORAGE_PATH;
-        Storage storage = new Storage(storagePath);
-        ArrayList<Task> tasks = storage.load();
-
-        Scanner scanner = new Scanner(System.in);
-
-        // Command processing loop
-        while (scanner.hasNextLine()) {
-            String input = scanner.nextLine();
+        while (ui.hasNextCommand()) {
+            String input = ui.readCommand();
 
             if (input.equalsIgnoreCase("bye")) {
-                System.out.println(DIVIDER);
-                System.out.println(INDENT + "*bzzzt* That's a wrap for today's broadcast!");
-                System.out.println(INDENT + "Bye. Hope to see you again soon!");
-                System.out.println(DIVIDER);
+                ui.showGoodbye();
                 break;
             }
 
             try {
-                processCommand(input, tasks, storage);
+                processCommand(input);
             } catch (BraunException e) {
-                System.out.println(DIVIDER);
-                System.out.println(INDENT + e.getMessage());
-                System.out.println(DIVIDER);
+                ui.showError(e.getMessage());
             }
         }
 
-        scanner.close();
+        ui.close();
     }
 
     /**
-     * Parses and executes a single user broadcast command.
+     * Parses and dispatches a single user broadcast command.
      *
      * @param input the raw input string from the user
-     * @param tasks list of stored tasks
-     * @param storage persistence handler for saving modifications
      * @throws BraunException if the command is unrecognized or has invalid parameters
      */
-    private static void processCommand(String input, ArrayList<Task> tasks, Storage storage) throws BraunException {
+    private void processCommand(String input) throws BraunException {
         String trimmed = input.trim();
         if (trimmed.isEmpty()) {
             return;
@@ -103,21 +66,21 @@ public class Braun {
         String lower = trimmed.toLowerCase();
 
         if (lower.equals("list")) {
-            handleList(tasks);
+            handleList();
         } else if (lower.equals("mark") || lower.startsWith("mark ")) {
-            handleMark(trimmed, tasks, storage);
+            handleMark(trimmed);
         } else if (lower.equals("unmark") || lower.startsWith("unmark ")) {
-            handleUnmark(trimmed, tasks, storage);
+            handleUnmark(trimmed);
         } else if (lower.equals("delete") || lower.startsWith("delete ")) {
-            handleDelete(trimmed, tasks, storage);
+            handleDelete(trimmed);
         } else if (lower.equals("date") || lower.startsWith("date ")) {
-            handleDate(trimmed, tasks);
+            handleDate(trimmed);
         } else if (lower.equals("todo") || lower.startsWith("todo ")) {
-            handleTodo(trimmed, tasks, storage);
+            handleTodo(trimmed);
         } else if (lower.equals("deadline") || lower.startsWith("deadline ")) {
-            handleDeadline(trimmed, tasks, storage);
+            handleDeadline(trimmed);
         } else if (lower.equals("event") || lower.startsWith("event ")) {
-            handleEvent(trimmed, tasks, storage);
+            handleEvent(trimmed);
         } else {
             throw new BraunException("*static* Unknown broadcast command! Please use todo, deadline, event, list, mark, unmark, delete, date, or bye.");
         }
@@ -125,26 +88,18 @@ public class Braun {
 
     /**
      * Displays all tasks currently stored in the broadcast schedule.
-     *
-     * @param tasks list of stored tasks
      */
-    private static void handleList(ArrayList<Task> tasks) {
-        System.out.println(DIVIDER);
-        System.out.println(INDENT + "Here are the tasks in your list:");
-        for (int i = 0; i < tasks.size(); i++) {
-            System.out.println(INDENT + (i + 1) + "." + tasks.get(i));
-        }
-        System.out.println(DIVIDER);
+    private void handleList() {
+        ui.showTaskList(tasks);
     }
 
     /**
      * Searches and displays all tasks occurring on a specified date.
      *
      * @param input the raw date command string
-     * @param tasks list of stored tasks
      * @throws BraunException if the date argument is missing or invalid
      */
-    private static void handleDate(String input, ArrayList<Task> tasks) throws BraunException {
+    private void handleDate(String input) throws BraunException {
         String arg = input.length() > 4 ? input.substring(4).trim() : "";
         if (arg.isEmpty()) {
             throw new BraunException("*static* Please specify a date to search for (e.g. date 2026-08-30).");
@@ -159,27 +114,16 @@ public class Braun {
         }
 
         String formattedDate = DateTimeUtil.formatDate(queryDate);
-        System.out.println(DIVIDER);
-        if (matchingTasks.isEmpty()) {
-            System.out.println(INDENT + "*static* No broadcast tasks scheduled for " + formattedDate + ".");
-        } else {
-            System.out.println(INDENT + "Here are the tasks scheduled for " + formattedDate + ":");
-            for (int i = 0; i < matchingTasks.size(); i++) {
-                System.out.println(INDENT + (i + 1) + "." + matchingTasks.get(i));
-            }
-        }
-        System.out.println(DIVIDER);
+        ui.showTasksOnDate(formattedDate, matchingTasks);
     }
 
     /**
      * Marks a specified task as completed and persists changes to disk.
      *
      * @param input the raw mark command string
-     * @param tasks list of stored tasks
-     * @param storage persistence handler
      * @throws BraunException if the index is missing, not a number, out of bounds, or saving fails
      */
-    private static void handleMark(String input, ArrayList<Task> tasks, Storage storage) throws BraunException {
+    private void handleMark(String input) throws BraunException {
         String arg = input.length() > 4 ? input.substring(4).trim() : "";
         if (arg.isEmpty()) {
             throw new BraunException("*static* Please provide a valid task number to mark.");
@@ -200,21 +144,16 @@ public class Braun {
         task.markAsDone();
         storage.save(tasks);
 
-        System.out.println(DIVIDER);
-        System.out.println(INDENT + "Nice! I've marked this task as done:");
-        System.out.println(INDENT + "  " + task);
-        System.out.println(DIVIDER);
+        ui.showMarkedTask(task);
     }
 
     /**
      * Marks a specified task as not completed (undone) and persists changes to disk.
      *
      * @param input the raw unmark command string
-     * @param tasks list of stored tasks
-     * @param storage persistence handler
      * @throws BraunException if the index is missing, not a number, out of bounds, or saving fails
      */
-    private static void handleUnmark(String input, ArrayList<Task> tasks, Storage storage) throws BraunException {
+    private void handleUnmark(String input) throws BraunException {
         String arg = input.length() > 6 ? input.substring(6).trim() : "";
         if (arg.isEmpty()) {
             throw new BraunException("*static* Please provide a valid task number to unmark.");
@@ -235,21 +174,16 @@ public class Braun {
         task.markAsUndone();
         storage.save(tasks);
 
-        System.out.println(DIVIDER);
-        System.out.println(INDENT + "OK, I've marked this task as not done yet:");
-        System.out.println(INDENT + "  " + task);
-        System.out.println(DIVIDER);
+        ui.showUnmarkedTask(task);
     }
 
     /**
      * Removes a specified task from the schedule and persists changes to disk.
      *
      * @param input the raw delete command string
-     * @param tasks list of stored tasks
-     * @param storage persistence handler
      * @throws BraunException if the index is missing, not a number, out of bounds, or saving fails
      */
-    private static void handleDelete(String input, ArrayList<Task> tasks, Storage storage) throws BraunException {
+    private void handleDelete(String input) throws BraunException {
         String arg = input.length() > 6 ? input.substring(6).trim() : "";
         if (arg.isEmpty()) {
             throw new BraunException("*static* Please provide a valid task number to delete.");
@@ -269,38 +203,30 @@ public class Braun {
         Task removed = tasks.remove(index);
         storage.save(tasks);
 
-        System.out.println(DIVIDER);
-        System.out.println(INDENT + "Noted. I've removed this task:");
-        System.out.println(INDENT + "  " + removed);
-        System.out.println(INDENT + "Now you have " + tasks.size() + " tasks in the list.");
-        System.out.println(DIVIDER);
+        ui.showDeletedTask(removed, tasks.size());
     }
 
     /**
      * Validates and adds a new Todo task to the schedule and saves it to disk.
      *
      * @param input the raw todo command string
-     * @param tasks list of stored tasks
-     * @param storage persistence handler
      * @throws BraunException if the description is empty or saving fails
      */
-    private static void handleTodo(String input, ArrayList<Task> tasks, Storage storage) throws BraunException {
+    private void handleTodo(String input) throws BraunException {
         String desc = input.length() > 4 ? input.substring(4).trim() : "";
         if (desc.isEmpty()) {
             throw new BraunException("*static* The description of a todo cannot be empty.");
         }
-        addTask(new Todo(desc), tasks, storage, desc);
+        addTask(new Todo(desc), desc);
     }
 
     /**
      * Validates and adds a new Deadline task to the schedule and saves it to disk.
      *
      * @param input the raw deadline command string
-     * @param tasks list of stored tasks
-     * @param storage persistence handler
      * @throws BraunException if the description, due time, or date format is invalid, or saving fails
      */
-    private static void handleDeadline(String input, ArrayList<Task> tasks, Storage storage) throws BraunException {
+    private void handleDeadline(String input) throws BraunException {
         String body = input.length() > 8 ? input.substring(8).trim() : "";
         int byIndex = body.toLowerCase().indexOf("/by ");
         if (byIndex == -1) {
@@ -313,18 +239,16 @@ public class Braun {
             throw new BraunException("*static* Deadline description and due time cannot be empty.");
         }
 
-        addTask(new Deadline(desc, by), tasks, storage, desc);
+        addTask(new Deadline(desc, by), desc);
     }
 
     /**
      * Validates and adds a new Event task to the schedule and saves it to disk.
      *
      * @param input the raw event command string
-     * @param tasks list of stored tasks
-     * @param storage persistence handler
      * @throws BraunException if the description, intervals, or date formats are invalid, or saving fails
      */
-    private static void handleEvent(String input, ArrayList<Task> tasks, Storage storage) throws BraunException {
+    private void handleEvent(String input) throws BraunException {
         String body = input.length() > 5 ? input.substring(5).trim() : "";
         int fromIndex = body.toLowerCase().indexOf("/from ");
         int toIndex = body.toLowerCase().indexOf("/to ");
@@ -339,64 +263,29 @@ public class Braun {
             throw new BraunException("*static* Event description, start time, and end time cannot be empty.");
         }
 
-        addTask(new Event(desc, from, to), tasks, storage, desc);
+        addTask(new Event(desc, from, to), desc);
     }
 
     /**
-     * Stores a validated task in the list, persists changes to disk, and prints confirmation.
+     * Stores a validated task in the list, persists changes to disk, and displays confirmation.
      *
      * @param task the task to store
-     * @param tasks the storage list
-     * @param storage persistence handler
      * @param description description used for lore remark matching
      * @throws BraunException if saving to disk fails
      */
-    private static void addTask(Task task, ArrayList<Task> tasks, Storage storage, String description) throws BraunException {
+    private void addTask(Task task, String description) throws BraunException {
         tasks.add(task);
         storage.save(tasks);
-
-        System.out.println(DIVIDER);
-        System.out.println(INDENT + "Got it. I've added this task:");
-        System.out.println(INDENT + "  " + task);
-        System.out.println(INDENT + "Now you have " + tasks.size() + " tasks in the list.");
-        System.out.println(INDENT + getRemarkForTask(description));
-        System.out.println(DIVIDER);
+        ui.showAddedTask(task, tasks.size(), description);
     }
 
     /**
-     * Determines the appropriate remark for an entered task.
-     * Scans for thematic keywords to provide lore-specific dialogue,
-     * or falls back to a random general broadcast remark.
+     * Main program entry point.
      *
-     * @param task the text entered by the user
-     * @return a thematic or randomized talk-show host remark
+     * @param args optional command line arguments where args[0] is the storage path
      */
-    private static String getRemarkForTask(String task) {
-        String lower = task.toLowerCase();
-
-        if (lower.contains("ghost") || lower.contains("anomaly") || lower.contains("monster") || lower.contains("entity")) {
-            return "*screen flickers* A new anomaly! Daydream Inc. will want this documented.";
-        } else if (lower.contains("work") || lower.contains("deadline") || lower.contains("report") || lower.contains("salary")) {
-            return "*chime* Even trapped in a ghost story, we still gotta work, don't we?";
-        } else if (lower.contains("explore") || lower.contains("investigate") || lower.contains("record")) {
-            return "*static hiss* Watch your step, Field Explorer! Duly noted in the Dark Exploration Records.";
-        } else if (lower.contains("rabbit") || lower.contains("doll") || lower.contains("plush")) {
-            return "*bzzzt* Reminds me of a certain charming pink rabbit doll, doesn't it?";
-        } else if (lower.contains("ticket") || lower.contains("wish") || lower.contains("survive")) {
-            return "*applause track* Keep racking up those points for your Wish Ticket home!";
-        } else if (lower.contains("soleum") || lower.contains("roe deer") || lower.contains("kim")) {
-            return "*screen flashes bright* Ah, our favorite explorer! Keep your wits sharp!";
-        }
-
-        return getRandomGeneralRemark();
-    }
-
-    /**
-     * Selects a random catchphrase from Braun's general broadcast remark pool.
-     *
-     * @return a random talk-show host remark string
-     */
-    private static String getRandomGeneralRemark() {
-        return GENERAL_REMARKS[RANDOM.nextInt(GENERAL_REMARKS.length)];
+    public static void main(String[] args) {
+        String storagePath = (args.length > 0) ? args[0] : DEFAULT_STORAGE_PATH;
+        new Braun(storagePath).run();
     }
 }
