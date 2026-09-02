@@ -36,4 +36,15 @@ public class Deadline extends Task {
     public String toString() {
         return "[D]" + super.toString() + " (by: " + by + ")";
     }
+
+    /**
+     * Returns the formatted string representation of the deadline task for file storage.
+     *
+     * @return a pipe-delimited string prefixed with the 'D' tag and containing the due time
+     */
+    @Override
+    public String toFileFormat() {
+        return "D | " + super.toFileFormat() + " | " + by;
+    }
 }
+

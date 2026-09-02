@@ -50,4 +50,15 @@ public class Event extends Task {
     public String toString() {
         return "[E]" + super.toString() + " (from: " + from + " to: " + to + ")";
     }
+
+    /**
+     * Returns the formatted string representation of the event task for file storage.
+     *
+     * @return a pipe-delimited string prefixed with the 'E' tag and containing start and end times
+     */
+    @Override
+    public String toFileFormat() {
+        return "E | " + super.toFileFormat() + " | " + from + " | " + to;
+    }
 }
+

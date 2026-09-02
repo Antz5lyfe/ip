@@ -22,4 +22,15 @@ public class Todo extends Task {
     public String toString() {
         return "[T]" + super.toString();
     }
+
+    /**
+     * Returns the formatted string representation of the todo task for file storage.
+     *
+     * @return a pipe-delimited string prefixed with the 'T' tag
+     */
+    @Override
+    public String toFileFormat() {
+        return "T | " + super.toFileFormat();
+    }
 }
+
