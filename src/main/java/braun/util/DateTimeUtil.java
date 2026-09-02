@@ -40,25 +40,52 @@ public class DateTimeUtil {
     };
 
     /**
+     * Prevents instantiation of this utility class.
+     */
+    private DateTimeUtil() {
+    }
+
+    /**
      * Encapsulates a date with an optional time component.
      */
     public static class TaskDateTime {
         private final LocalDate date;
         private final LocalTime time;
 
+        /**
+         * Constructs a new {@code TaskDateTime} with the specified date and optional time.
+         *
+         * @param date the date component
+         * @param time the time component, or {@code null} if only a date was specified
+         */
         public TaskDateTime(LocalDate date, LocalTime time) {
             this.date = date;
             this.time = time;
         }
 
+        /**
+         * Returns the date component of this date/time.
+         *
+         * @return the local date
+         */
         public LocalDate getDate() {
             return date;
         }
 
+        /**
+         * Returns the time component of this date/time.
+         *
+         * @return the local time, or {@code null} if no time is set
+         */
         public LocalTime getTime() {
             return time;
         }
 
+        /**
+         * Checks whether this instance includes a time component.
+         *
+         * @return {@code true} if a time component is present, {@code false} otherwise
+         */
         public boolean hasTime() {
             return time != null;
         }
@@ -87,6 +114,12 @@ public class DateTimeUtil {
             return date.toString();
         }
 
+        /**
+         * Checks if this date/time occurs before another {@code TaskDateTime}.
+         *
+         * @param other the other date/time to compare against
+         * @return {@code true} if this date/time is chronologically before {@code other}, {@code false} otherwise
+         */
         public boolean isBefore(TaskDateTime other) {
             if (!this.date.equals(other.date)) {
                 return this.date.isBefore(other.date);

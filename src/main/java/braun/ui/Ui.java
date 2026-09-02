@@ -13,7 +13,10 @@ import braun.task.Task;
  */
 public class Ui {
 
+    /** Standard divider line used to frame broadcast message blocks. */
     public static final String DIVIDER = "    ____________________________________________________________";
+
+    /** Standard indentation whitespace prefix for console lines. */
     public static final String INDENT = "     ";
 
     private static final String BANNER = ""
