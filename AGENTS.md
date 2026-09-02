@@ -34,8 +34,16 @@ Use lightweight tags unless the user requests an annotated tag.
 When proposing or creating a commit message, include enough detail to explain the rationale for the change.
 Do not commit or push unless explicitly asked.
 
+## Testing and Test Coverage:
+
+- **Target Coverage**: Maintain a JUnit test coverage target of ~50%, focusing on the highest-value methods (prioritizing complex, core, or critical business logic such as date-time parsing, task serialization/deserialization, and entity validation).
+- **Test Maintenance**: JUnit tests must be updated or added after each code change to comply with the 50% coverage target and prevent regressions.
+
 ## Post-code update workflow:
 
 After each code update:
-1. Update `test/ui-test-plan.md` (if needed, e.g. when inputs, commands, or outputs are added/modified).
-2. Invoke the `test-ui` skill (by executing `python3 .agents/skills/test-ui/scripts/run-ui-tests.py`) to verify that all UI tests pass.
+1. Update or add JUnit tests in `src/test/java/` to maintain the ~50% high-value method coverage target.
+2. Execute `./gradlew test` to verify all JUnit tests pass.
+3. Update `test/ui-test-plan.md` (if needed, e.g. when inputs, commands, or outputs are added/modified).
+4. Invoke the `test-ui` skill (by executing `python3 .agents/skills/test-ui/scripts/run-ui-tests.py`) to verify that all UI tests pass.
+
