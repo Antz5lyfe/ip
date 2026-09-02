@@ -1,64 +1,101 @@
+import java.time.LocalDate;
+
 /**
  * Represents an event task that starts at a specific date/time and ends at a specific date/time.
+ * Encapsulates intervals using {@link DateTimeUtil.TaskDateTime}.
  */
 public class Event extends Task {
 
-    /** The start date/time string of the event */
-    protected String from;
+    /** The start date/time of the event */
+    protected DateTimeUtil.TaskDateTime from;
 
-    /** The end date/time string of the event */
-    protected String to;
+    /** The end date/time of the event */
+    protected DateTimeUtil.TaskDateTime to;
 
     /**
-     * Constructs a new {@code Event} task with the specified description, start time, and end time.
+     * Constructs a new {@code Event} task by parsing the specified start and end date/time strings.
+     * If the end time is given without a date, the start date is used by default.
      *
      * @param description the textual description of the event
-     * @param from the start date/time of the event
-     * @param to the end date/time of the event
+     * @param from the start date/time string
+     * @param to the end date/time string
+     * @throws BraunException if either date/time is invalid or if end time is before start time
      */
-    public Event(String description, String from, String to) {
+    public Event(String description, String from, String to) throws BraunException {
         super(description);
-        this.from = from;
-        this.to = to;
+        this.from = DateTimeUtil.parse(from);
+        this.to = DateTimeUtil.parse(to, this.from.getDate());
+
+        if (this.to.isBefore(this.from)) {
+            throw new BraunException("*static* Event end time cannot be before start time!");
+        }
     }
 
     /**
-     * Returns the start date/time of the event.
+     * Constructs a new {@code Event} task with pre-parsed {@link DateTimeUtil.TaskDateTime} instances.
      *
-     * @return the start date/time string
+     * @param description the textual description of the event
+     * @param from the start date/time object
+     * @param to the end date/time object
+     * @throws BraunException if end time is before start time
      */
-    public String getFrom() {
+    public Event(String description, DateTimeUtil.TaskDateTime from, DateTimeUtil.TaskDateTime to) throws BraunException {
+        super(description);
+        this.from = from;
+        this.to = to;
+
+        if (this.to.isBefore(this.from)) {
+            throw new BraunException("*static* Event end time cannot be before start time!");
+        }
+    }
+
+    /**
+     * Returns the structured start date/time of the event.
+     *
+     * @return the start date/time object
+     */
+    public DateTimeUtil.TaskDateTime getFrom() {
         return from;
     }
 
     /**
-     * Returns the end date/time of the event.
+     * Returns the structured end date/time of the event.
      *
-     * @return the end date/time string
+     * @return the end date/time object
      */
-    public String getTo() {
+    public DateTimeUtil.TaskDateTime getTo() {
         return to;
     }
 
     /**
-     * Returns the formatted string representation of the event task,
-     * prefixed with the [E] identifier tag and appending start and end times.
+     * Checks if this event occurs on or spans across the specified date.
      *
-     * @return formatted string such as "[E][ ] project meeting (from: Aug 6th 2pm to: 4pm)"
+     * @param queryDate date to compare against
+     * @return {@code true} if the query date falls within [from.date, to.date]
+     */
+    @Override
+    public boolean isOnDate(LocalDate queryDate) {
+        return !queryDate.isBefore(from.getDate()) && !queryDate.isAfter(to.getDate());
+    }
+
+    /**
+     * Returns the formatted string representation of the event task,
+     * prefixed with the [E] identifier tag and appending formatted start and end times.
+     *
+     * @return formatted string such as "[E][ ] project meeting (from: Aug 06 2026, 2:00PM to: Aug 06 2026, 4:00PM)"
      */
     @Override
     public String toString() {
-        return "[E]" + super.toString() + " (from: " + from + " to: " + to + ")";
+        return "[E]" + super.toString() + " (from: " + from.formatForDisplay() + " to: " + to.formatForDisplay() + ")";
     }
 
     /**
      * Returns the formatted string representation of the event task for file storage.
      *
-     * @return a pipe-delimited string prefixed with the 'E' tag and containing start and end times
+     * @return a pipe-delimited string prefixed with the 'E' tag and containing storage date/times
      */
     @Override
     public String toFileFormat() {
-        return "E | " + super.toFileFormat() + " | " + from + " | " + to;
+        return "E | " + super.toFileFormat() + " | " + from.formatForFile() + " | " + to.formatForFile();
     }
 }
-

@@ -77,18 +77,18 @@ todo ghost exploration
 ---
 
 ### Test Case 4: Add Deadline Task
-**Aim**: Verify adding a `deadline` task with `/by` creates a Deadline with [D] tag and due time.
+**Aim**: Verify adding a `deadline` task with `/by` creates a Deadline with formatted date/time.
 
 **Input**:
 ```
-deadline submit monthly report /by Sunday 5pm
+deadline submit monthly report /by 2026-08-30 1700
 ```
 
 **Expected Output**:
 ```
     ____________________________________________________________
      Got it. I've added this task:
-       [D][ ] submit monthly report (by: Sunday 5pm)
+       [D][ ] submit monthly report (by: Aug 30 2026, 5:00PM)
      Now you have 2 tasks in the list.
      *chime* Even trapped in a ghost story, we still gotta work, don't we?
     ____________________________________________________________
@@ -97,18 +97,18 @@ deadline submit monthly report /by Sunday 5pm
 ---
 
 ### Test Case 5: Add Event Task
-**Aim**: Verify adding an `event` task with `/from` and `/to` creates an Event with [E] tag and time intervals.
+**Aim**: Verify adding an `event` task with `/from` and `/to` creates an Event with formatted date/time intervals.
 
 **Input**:
 ```
-event search pink rabbit doll /from Mon 2pm /to 4pm
+event search pink rabbit doll /from 2026-08-24 1400 /to 2026-08-24 1600
 ```
 
 **Expected Output**:
 ```
     ____________________________________________________________
      Got it. I've added this task:
-       [E][ ] search pink rabbit doll (from: Mon 2pm to: 4pm)
+       [E][ ] search pink rabbit doll (from: Aug 24 2026, 2:00PM to: Aug 24 2026, 4:00PM)
      Now you have 3 tasks in the list.
      *bzzzt* Reminds me of a certain charming pink rabbit doll, doesn't it?
     ____________________________________________________________
@@ -117,7 +117,7 @@ event search pink rabbit doll /from Mon 2pm /to 4pm
 ---
 
 ### Test Case 6: List Added Tasks
-**Aim**: Verify that the `list` command enumerates all polymorphic task types with [T], [D], [E] tags and completion status.
+**Aim**: Verify that the `list` command enumerates all polymorphic task types with [T], [D], [E] tags and formatted dates.
 
 **Input**:
 ```
@@ -129,8 +129,8 @@ list
     ____________________________________________________________
      Here are the tasks in your list:
      1.[T][ ] ghost exploration
-     2.[D][ ] submit monthly report (by: Sunday 5pm)
-     3.[E][ ] search pink rabbit doll (from: Mon 2pm to: 4pm)
+     2.[D][ ] submit monthly report (by: Aug 30 2026, 5:00PM)
+     3.[E][ ] search pink rabbit doll (from: Aug 24 2026, 2:00PM to: Aug 24 2026, 4:00PM)
     ____________________________________________________________
 ```
 
@@ -148,7 +148,7 @@ mark 2
 ```
     ____________________________________________________________
      Nice! I've marked this task as done:
-       [D][X] submit monthly report (by: Sunday 5pm)
+       [D][X] submit monthly report (by: Aug 30 2026, 5:00PM)
     ____________________________________________________________
 ```
 
@@ -167,8 +167,8 @@ list
     ____________________________________________________________
      Here are the tasks in your list:
      1.[T][ ] ghost exploration
-     2.[D][X] submit monthly report (by: Sunday 5pm)
-     3.[E][ ] search pink rabbit doll (from: Mon 2pm to: 4pm)
+     2.[D][X] submit monthly report (by: Aug 30 2026, 5:00PM)
+     3.[E][ ] search pink rabbit doll (from: Aug 24 2026, 2:00PM to: Aug 24 2026, 4:00PM)
     ____________________________________________________________
 ```
 
@@ -186,7 +186,7 @@ unmark 2
 ```
     ____________________________________________________________
      OK, I've marked this task as not done yet:
-       [D][ ] submit monthly report (by: Sunday 5pm)
+       [D][ ] submit monthly report (by: Aug 30 2026, 5:00PM)
     ____________________________________________________________
 ```
 
@@ -288,7 +288,7 @@ blah
 **Expected Output**:
 ```
     ____________________________________________________________
-     *static* Unknown broadcast command! Please use todo, deadline, event, list, mark, unmark, delete, or bye.
+     *static* Unknown broadcast command! Please use todo, deadline, event, list, mark, unmark, delete, date, or bye.
     ____________________________________________________________
 ```
 
@@ -357,7 +357,7 @@ delete 2
 ```
     ____________________________________________________________
      Noted. I've removed this task:
-       [D][ ] submit monthly report (by: Sunday 5pm)
+       [D][ ] submit monthly report (by: Aug 30 2026, 5:00PM)
      Now you have 2 tasks in the list.
     ____________________________________________________________
 ```
@@ -377,7 +377,7 @@ list
     ____________________________________________________________
      Here are the tasks in your list:
      1.[T][ ] ghost exploration
-     2.[E][ ] search pink rabbit doll (from: Mon 2pm to: 4pm)
+     2.[E][ ] search pink rabbit doll (from: Aug 24 2026, 2:00PM to: Aug 24 2026, 4:00PM)
     ____________________________________________________________
 ```
 
@@ -454,7 +454,59 @@ todo submit salary claim
 
 ---
 
-### Test Case 25: Exit Application
+### Test Case 25: Query Tasks By Specific Date
+**Aim**: Verify querying tasks occurring on a specific date filters and lists the event.
+
+**Input**:
+```
+date 2026-08-24
+```
+
+**Expected Output**:
+```
+    ____________________________________________________________
+     Here are the tasks scheduled for Aug 24 2026:
+     1.[E][ ] search pink rabbit doll (from: Aug 24 2026, 2:00PM to: Aug 24 2026, 4:00PM)
+    ____________________________________________________________
+```
+
+---
+
+### Test Case 26: Query Date With No Tasks
+**Aim**: Verify querying a date with no scheduled tasks returns appropriate feedback.
+
+**Input**:
+```
+date 2026-12-31
+```
+
+**Expected Output**:
+```
+    ____________________________________________________________
+     *static* No broadcast tasks scheduled for Dec 31 2026.
+    ____________________________________________________________
+```
+
+---
+
+### Test Case 27: Invalid Date Format Error
+**Aim**: Verify error handling when deadline provides an unparseable date/time string.
+
+**Input**:
+```
+deadline return equipment /by invalid-date
+```
+
+**Expected Output**:
+```
+    ____________________________________________________________
+     *static* Invalid date format! Please use yyyy-MM-dd (e.g. 2026-08-30) or yyyy-MM-dd HHmm / d/M/yyyy HHmm (e.g. 2026-08-30 1700 or 2/12/2019 1800).
+    ____________________________________________________________
+```
+
+---
+
+### Test Case 28: Exit Application
 **Aim**: Verify that the `bye` command prints the farewell broadcast message and exits cleanly.
 
 **Input**:

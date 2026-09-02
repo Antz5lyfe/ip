@@ -1,4 +1,5 @@
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -7,7 +8,7 @@ import java.util.Scanner;
  * Main entry point for the Braun chatbot application.
  * Braun is a TV-headed supernatural talk show host from 'Got Dropped into a Ghost Story, Still Gotta Work'.
  * Stores user-entered items dynamically using {@link ArrayList}, lists them on demand with completion status ([X] / [ ]),
- * marks/unmarks tasks, deletes tasks, and delivers contextual lore remarks or general broadcast catchphrases.
+ * marks/unmarks tasks, deletes tasks, parses dates and times, and delivers contextual lore remarks or general broadcast catchphrases.
  * Automatically persists tasks to disk via {@link Storage} upon any list changes and reloads them upon startup.
  * Handles validation, I/O, and runtime errors gracefully using {@link BraunException}.
  */
@@ -109,6 +110,8 @@ public class Braun {
             handleUnmark(trimmed, tasks, storage);
         } else if (lower.equals("delete") || lower.startsWith("delete ")) {
             handleDelete(trimmed, tasks, storage);
+        } else if (lower.equals("date") || lower.startsWith("date ")) {
+            handleDate(trimmed, tasks);
         } else if (lower.equals("todo") || lower.startsWith("todo ")) {
             handleTodo(trimmed, tasks, storage);
         } else if (lower.equals("deadline") || lower.startsWith("deadline ")) {
@@ -116,7 +119,7 @@ public class Braun {
         } else if (lower.equals("event") || lower.startsWith("event ")) {
             handleEvent(trimmed, tasks, storage);
         } else {
-            throw new BraunException("*static* Unknown broadcast command! Please use todo, deadline, event, list, mark, unmark, delete, or bye.");
+            throw new BraunException("*static* Unknown broadcast command! Please use todo, deadline, event, list, mark, unmark, delete, date, or bye.");
         }
     }
 
@@ -130,6 +133,40 @@ public class Braun {
         System.out.println(INDENT + "Here are the tasks in your list:");
         for (int i = 0; i < tasks.size(); i++) {
             System.out.println(INDENT + (i + 1) + "." + tasks.get(i));
+        }
+        System.out.println(DIVIDER);
+    }
+
+    /**
+     * Searches and displays all tasks occurring on a specified date.
+     *
+     * @param input the raw date command string
+     * @param tasks list of stored tasks
+     * @throws BraunException if the date argument is missing or invalid
+     */
+    private static void handleDate(String input, ArrayList<Task> tasks) throws BraunException {
+        String arg = input.length() > 4 ? input.substring(4).trim() : "";
+        if (arg.isEmpty()) {
+            throw new BraunException("*static* Please specify a date to search for (e.g. date 2026-08-30).");
+        }
+
+        LocalDate queryDate = DateTimeUtil.parseDate(arg);
+        ArrayList<Task> matchingTasks = new ArrayList<>();
+        for (Task task : tasks) {
+            if (task.isOnDate(queryDate)) {
+                matchingTasks.add(task);
+            }
+        }
+
+        String formattedDate = DateTimeUtil.formatDate(queryDate);
+        System.out.println(DIVIDER);
+        if (matchingTasks.isEmpty()) {
+            System.out.println(INDENT + "*static* No broadcast tasks scheduled for " + formattedDate + ".");
+        } else {
+            System.out.println(INDENT + "Here are the tasks scheduled for " + formattedDate + ":");
+            for (int i = 0; i < matchingTasks.size(); i++) {
+                System.out.println(INDENT + (i + 1) + "." + matchingTasks.get(i));
+            }
         }
         System.out.println(DIVIDER);
     }
@@ -261,7 +298,7 @@ public class Braun {
      * @param input the raw deadline command string
      * @param tasks list of stored tasks
      * @param storage persistence handler
-     * @throws BraunException if the description or due time is missing or invalid, or saving fails
+     * @throws BraunException if the description, due time, or date format is invalid, or saving fails
      */
     private static void handleDeadline(String input, ArrayList<Task> tasks, Storage storage) throws BraunException {
         String body = input.length() > 8 ? input.substring(8).trim() : "";
@@ -285,7 +322,7 @@ public class Braun {
      * @param input the raw event command string
      * @param tasks list of stored tasks
      * @param storage persistence handler
-     * @throws BraunException if the description, start time, or end time is missing or invalid, or saving fails
+     * @throws BraunException if the description, intervals, or date formats are invalid, or saving fails
      */
     private static void handleEvent(String input, ArrayList<Task> tasks, Storage storage) throws BraunException {
         String body = input.length() > 5 ? input.substring(5).trim() : "";

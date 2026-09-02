@@ -1,50 +1,75 @@
+import java.time.LocalDate;
+
 /**
  * Represents a deadline task that needs to be done before a specific date/time.
+ * Encapsulates date and time using {@link DateTimeUtil.TaskDateTime}.
  */
 public class Deadline extends Task {
 
-    /** The deadline date/time string */
-    protected String by;
+    /** The structured deadline date/time */
+    protected DateTimeUtil.TaskDateTime by;
 
     /**
-     * Constructs a new {@code Deadline} task with the specified description and due time.
+     * Constructs a new {@code Deadline} task by parsing the specified date/time string.
      *
      * @param description the textual description of the deadline task
      * @param by the date/time string by which the task is due
+     * @throws BraunException if the date/time format is invalid
      */
-    public Deadline(String description, String by) {
+    public Deadline(String description, String by) throws BraunException {
+        super(description);
+        this.by = DateTimeUtil.parse(by);
+    }
+
+    /**
+     * Constructs a new {@code Deadline} task with a pre-parsed {@link DateTimeUtil.TaskDateTime}.
+     *
+     * @param description the textual description of the deadline task
+     * @param by the deadline date/time object
+     */
+    public Deadline(String description, DateTimeUtil.TaskDateTime by) {
         super(description);
         this.by = by;
     }
 
     /**
-     * Returns the due date/time of the deadline.
+     * Returns the structured date/time of the deadline.
      *
-     * @return the due date/time string
+     * @return the deadline date/time object
      */
-    public String getBy() {
+    public DateTimeUtil.TaskDateTime getBy() {
         return by;
     }
 
     /**
-     * Returns the formatted string representation of the deadline task,
-     * prefixed with the [D] identifier tag and appending the due time.
+     * Checks if this deadline is due on the specified date.
      *
-     * @return formatted string such as "[D][ ] return book (by: June 6th)"
+     * @param queryDate date to compare against
+     * @return {@code true} if the deadline date matches the query date
+     */
+    @Override
+    public boolean isOnDate(LocalDate queryDate) {
+        return by.getDate().equals(queryDate);
+    }
+
+    /**
+     * Returns the formatted string representation of the deadline task,
+     * prefixed with the [D] identifier tag and appending the formatted due time.
+     *
+     * @return formatted string such as "[D][ ] return book (by: Jun 06 2026, 6:00PM)"
      */
     @Override
     public String toString() {
-        return "[D]" + super.toString() + " (by: " + by + ")";
+        return "[D]" + super.toString() + " (by: " + by.formatForDisplay() + ")";
     }
 
     /**
      * Returns the formatted string representation of the deadline task for file storage.
      *
-     * @return a pipe-delimited string prefixed with the 'D' tag and containing the due time
+     * @return a pipe-delimited string prefixed with the 'D' tag and containing the storage date/time
      */
     @Override
     public String toFileFormat() {
-        return "D | " + super.toFileFormat() + " | " + by;
+        return "D | " + super.toFileFormat() + " | " + by.formatForFile();
     }
 }
-
