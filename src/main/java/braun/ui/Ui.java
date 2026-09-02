@@ -1,6 +1,10 @@
+package braun.ui;
+
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
+
+import braun.task.Task;
 
 /**
  * Handles all user interactions and console presentation for the Braun chatbot.

@@ -1,3 +1,7 @@
+package braun.task;
+
+import java.time.LocalDate;
+
 /**
  * Represents a task with a description and a completion status.
  * Provides methods to retrieve status details and toggle completion.
@@ -88,9 +92,7 @@ public class Task {
      * @param queryDate the date to check against
      * @return {@code true} if the task occurs on the specified date, {@code false} otherwise
      */
-    public boolean isOnDate(java.time.LocalDate queryDate) {
+    public boolean isOnDate(LocalDate queryDate) {
         return false;
     }
 }
-
-

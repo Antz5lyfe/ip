@@ -135,7 +135,7 @@ def parse_test_plan(plan_path: Path) -> list[TestCase]:
 def compile_java(repo_root: Path, javac_cmd: str) -> None:
     """Compiles all Java source files in src/main/java."""
     src_dir = repo_root / "src" / "main" / "java"
-    java_files = list(src_dir.glob("*.java"))
+    java_files = list(src_dir.rglob("*.java"))
     if not java_files:
         raise FileNotFoundError(f"No Java files found in {src_dir}")
 
@@ -215,8 +215,9 @@ def run_tests(plan_path: Path, repo_root: Path, compile_first: bool = True) -> b
         default_data_file.unlink()
 
     # Spawn Braun process
+    main_class = "braun.Braun" if (repo_root / "src" / "main" / "java" / "braun" / "Braun.java").exists() else "Braun"
     proc = subprocess.Popen(
-        [java_cmd, "-cp", "src/main/java", "Braun"],
+        [java_cmd, "-cp", "src/main/java", main_class],
         cwd=str(repo_root),
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,

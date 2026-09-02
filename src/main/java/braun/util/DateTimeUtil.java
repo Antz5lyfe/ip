@@ -1,9 +1,13 @@
+package braun.util;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Locale;
+
+import braun.exception.BraunException;
 
 /**
  * Utility class for parsing, validating, and formatting dates and times across Braun.

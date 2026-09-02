@@ -1,3 +1,5 @@
+package braun.exception;
+
 /**
  * Represents custom exceptions specific to the Braun chatbot application.
  * Used to signal validation errors, unrecognized broadcast commands, invalid formats, or execution errors.
