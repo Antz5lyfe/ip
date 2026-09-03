@@ -288,7 +288,7 @@ blah
 **Expected Output**:
 ```
     ____________________________________________________________
-     *static* Unknown broadcast command! Please use todo, deadline, event, list, mark, unmark, delete, date, or bye.
+     *static* Unknown broadcast command! Please use todo, deadline, event, list, mark, unmark, delete, find, date, or bye.
     ____________________________________________________________
 ```
 
@@ -506,7 +506,77 @@ deadline return equipment /by invalid-date
 
 ---
 
-### Test Case 28: Exit Application
+### Test Case 28: Find Matching Task
+**Aim**: Verify that `find` locates tasks whose description contains the specified keyword.
+
+**Input**:
+```
+find rabbit
+```
+
+**Expected Output**:
+```
+    ____________________________________________________________
+     Here are the matching tasks in your list:
+     1.[E][ ] search pink rabbit doll (from: Aug 24 2026, 2:00PM to: Aug 24 2026, 4:00PM)
+    ____________________________________________________________
+```
+
+---
+
+### Test Case 29: Find Case-Insensitive Keyword
+**Aim**: Verify that `find` matches keywords case-insensitively.
+
+**Input**:
+```
+find GHOST
+```
+
+**Expected Output**:
+```
+    ____________________________________________________________
+     Here are the matching tasks in your list:
+     1.[T][ ] ghost exploration
+    ____________________________________________________________
+```
+
+---
+
+### Test Case 30: Find Nonexistent Task
+**Aim**: Verify appropriate notification when no tasks match the searched keyword.
+
+**Input**:
+```
+find nonexistent
+```
+
+**Expected Output**:
+```
+    ____________________________________________________________
+     *static* No matching broadcast tasks found for: nonexistent
+    ____________________________________________________________
+```
+
+---
+
+### Test Case 31: Find Missing Keyword Error
+**Aim**: Verify error handling when the `find` command is issued without a search keyword.
+
+**Input**:
+```
+find
+```
+
+**Expected Output**:
+```
+    ____________________________________________________________
+     *static* Please specify a keyword to search for (e.g. find book).
+    ____________________________________________________________
+```
+
+---
+
+### Test Case 32: Exit Application
 **Aim**: Verify that the `bye` command prints the farewell broadcast message and exits cleanly.
 
 **Input**:

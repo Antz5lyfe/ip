@@ -86,6 +86,8 @@ public class Braun {
             handleDelete(trimmed);
         } else if (lower.equals("date") || lower.startsWith("date ")) {
             handleDate(trimmed);
+        } else if (lower.equals("find") || lower.startsWith("find ")) {
+            handleFind(trimmed);
         } else if (lower.equals("todo") || lower.startsWith("todo ")) {
             handleTodo(trimmed);
         } else if (lower.equals("deadline") || lower.startsWith("deadline ")) {
@@ -94,7 +96,7 @@ public class Braun {
             handleEvent(trimmed);
         } else {
             throw new BraunException("*static* Unknown broadcast command! "
-                    + "Please use todo, deadline, event, list, mark, unmark, delete, date, or bye.");
+                    + "Please use todo, deadline, event, list, mark, unmark, delete, find, date, or bye.");
         }
     }
 
@@ -127,6 +129,29 @@ public class Braun {
 
         String formattedDate = DateTimeUtil.formatDate(queryDate);
         ui.showTasksOnDate(formattedDate, matchingTasks);
+    }
+
+    /**
+     * Searches and displays tasks containing the specified keyword in their description.
+     *
+     * @param input the raw find command string.
+     * @throws BraunException if the keyword argument is missing.
+     */
+    private void handleFind(String input) throws BraunException {
+        String keyword = input.length() > 4 ? input.substring(4).trim() : "";
+        if (keyword.isEmpty()) {
+            throw new BraunException("*static* Please specify a keyword to search for (e.g. find book).");
+        }
+
+        String searchLower = keyword.toLowerCase();
+        ArrayList<Task> matchingTasks = new ArrayList<>();
+        for (Task task : tasks) {
+            if (task.getDescription().toLowerCase().contains(searchLower)) {
+                matchingTasks.add(task);
+            }
+        }
+
+        ui.showMatchingTasks(keyword, matchingTasks);
     }
 
     /**

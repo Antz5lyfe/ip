@@ -220,6 +220,25 @@ public class Ui {
     }
 
     /**
+     * Displays tasks whose descriptions match a search keyword, or a message indicating none were found.
+     *
+     * @param keyword the search keyword or phrase.
+     * @param matchingTasks list of tasks matching the keyword.
+     */
+    public void showMatchingTasks(String keyword, ArrayList<Task> matchingTasks) {
+        System.out.println(DIVIDER);
+        if (matchingTasks.isEmpty()) {
+            System.out.println(INDENT + "*static* No matching broadcast tasks found for: " + keyword);
+        } else {
+            System.out.println(INDENT + "Here are the matching tasks in your list:");
+            for (int i = 0; i < matchingTasks.size(); i++) {
+                System.out.println(INDENT + (i + 1) + "." + matchingTasks.get(i));
+            }
+        }
+        System.out.println(DIVIDER);
+    }
+
+    /**
      * Determines the appropriate talk-show remark for an added task description.
      * Scans for thematic keywords to provide lore-specific dialogue,
      * or falls back to a random general broadcast remark.
