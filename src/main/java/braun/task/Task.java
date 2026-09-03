@@ -18,7 +18,7 @@ public class Task {
      * Constructs a new {@code Task} with the specified description.
      * The task is initially marked as not done.
      *
-     * @param description the textual description of the task
+     * @param description the textual description of the task.
      */
     public Task(String description) {
         this.description = description;
@@ -28,7 +28,7 @@ public class Task {
     /**
      * Returns the status icon indicating whether the task is completed.
      *
-     * @return "X" if the task is done, otherwise a single space " "
+     * @return "X" if the task is done, otherwise a single space " ".
      */
     public String getStatusIcon() {
         return (isDone ? "X" : " "); // mark done task with X
@@ -51,7 +51,7 @@ public class Task {
     /**
      * Returns the description of the task.
      *
-     * @return the task description
+     * @return the task description.
      */
     public String getDescription() {
         return description;
@@ -60,7 +60,7 @@ public class Task {
     /**
      * Returns whether the task is completed.
      *
-     * @return {@code true} if done, {@code false} otherwise
+     * @return {@code true} if done, {@code false} otherwise.
      */
     public boolean isDone() {
         return isDone;
@@ -69,7 +69,7 @@ public class Task {
     /**
      * Returns the formatted string representation of the task including its status icon.
      *
-     * @return a formatted string such as "[X] read book" or "[ ] return book"
+     * @return a formatted string such as "[X] read book" or "[ ] return book".
      */
     @Override
     public String toString() {
@@ -79,7 +79,7 @@ public class Task {
     /**
      * Returns the formatted string representation of the task for file storage.
      *
-     * @return a pipe-delimited string representing completion status and description
+     * @return a pipe-delimited string representing completion status and description.
      */
     public String toFileFormat() {
         return (isDone ? "1" : "0") + " | " + description;
@@ -89,8 +89,8 @@ public class Task {
      * Checks whether this task occurs on or is scheduled for the given date.
      * Default implementation returns false.
      *
-     * @param queryDate the date to check against
-     * @return {@code true} if the task occurs on the specified date, {@code false} otherwise
+     * @param queryDate the date to check against.
+     * @return {@code true} if the task occurs on the specified date, {@code false} otherwise.
      */
     public boolean isOnDate(LocalDate queryDate) {
         return false;

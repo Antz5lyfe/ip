@@ -30,7 +30,7 @@ public class Braun {
     /**
      * Constructs a new {@code Braun} application instance with the specified file storage path.
      *
-     * @param filePath path to the local task persistence file
+     * @param filePath path to the local task persistence file.
      */
     public Braun(String filePath) {
         this.ui = new Ui();
@@ -65,8 +65,8 @@ public class Braun {
     /**
      * Parses and dispatches a single user broadcast command.
      *
-     * @param input the raw input string from the user
-     * @throws BraunException if the command is unrecognized or has invalid parameters
+     * @param input the raw input string from the user.
+     * @throws BraunException if the command is unrecognized or has invalid parameters.
      */
     private void processCommand(String input) throws BraunException {
         String trimmed = input.trim();
@@ -93,7 +93,8 @@ public class Braun {
         } else if (lower.equals("event") || lower.startsWith("event ")) {
             handleEvent(trimmed);
         } else {
-            throw new BraunException("*static* Unknown broadcast command! Please use todo, deadline, event, list, mark, unmark, delete, date, or bye.");
+            throw new BraunException("*static* Unknown broadcast command! "
+                    + "Please use todo, deadline, event, list, mark, unmark, delete, date, or bye.");
         }
     }
 
@@ -107,8 +108,8 @@ public class Braun {
     /**
      * Searches and displays all tasks occurring on a specified date.
      *
-     * @param input the raw date command string
-     * @throws BraunException if the date argument is missing or invalid
+     * @param input the raw date command string.
+     * @throws BraunException if the date argument is missing or invalid.
      */
     private void handleDate(String input) throws BraunException {
         String arg = input.length() > 4 ? input.substring(4).trim() : "";
@@ -131,8 +132,8 @@ public class Braun {
     /**
      * Marks a specified task as completed and persists changes to disk.
      *
-     * @param input the raw mark command string
-     * @throws BraunException if the index is missing, not a number, out of bounds, or saving fails
+     * @param input the raw mark command string.
+     * @throws BraunException if the index is missing, not a number, out of bounds, or saving fails.
      */
     private void handleMark(String input) throws BraunException {
         String arg = input.length() > 4 ? input.substring(4).trim() : "";
@@ -161,8 +162,8 @@ public class Braun {
     /**
      * Marks a specified task as not completed (undone) and persists changes to disk.
      *
-     * @param input the raw unmark command string
-     * @throws BraunException if the index is missing, not a number, out of bounds, or saving fails
+     * @param input the raw unmark command string.
+     * @throws BraunException if the index is missing, not a number, out of bounds, or saving fails.
      */
     private void handleUnmark(String input) throws BraunException {
         String arg = input.length() > 6 ? input.substring(6).trim() : "";
@@ -191,8 +192,8 @@ public class Braun {
     /**
      * Removes a specified task from the schedule and persists changes to disk.
      *
-     * @param input the raw delete command string
-     * @throws BraunException if the index is missing, not a number, out of bounds, or saving fails
+     * @param input the raw delete command string.
+     * @throws BraunException if the index is missing, not a number, out of bounds, or saving fails.
      */
     private void handleDelete(String input) throws BraunException {
         String arg = input.length() > 6 ? input.substring(6).trim() : "";
@@ -220,8 +221,8 @@ public class Braun {
     /**
      * Validates and adds a new Todo task to the schedule and saves it to disk.
      *
-     * @param input the raw todo command string
-     * @throws BraunException if the description is empty or saving fails
+     * @param input the raw todo command string.
+     * @throws BraunException if the description is empty or saving fails.
      */
     private void handleTodo(String input) throws BraunException {
         String desc = input.length() > 4 ? input.substring(4).trim() : "";
@@ -234,8 +235,8 @@ public class Braun {
     /**
      * Validates and adds a new Deadline task to the schedule and saves it to disk.
      *
-     * @param input the raw deadline command string
-     * @throws BraunException if the description, due time, or date format is invalid, or saving fails
+     * @param input the raw deadline command string.
+     * @throws BraunException if the description, due time, or date format is invalid, or saving fails.
      */
     private void handleDeadline(String input) throws BraunException {
         String body = input.length() > 8 ? input.substring(8).trim() : "";
@@ -256,8 +257,8 @@ public class Braun {
     /**
      * Validates and adds a new Event task to the schedule and saves it to disk.
      *
-     * @param input the raw event command string
-     * @throws BraunException if the description, intervals, or date formats are invalid, or saving fails
+     * @param input the raw event command string.
+     * @throws BraunException if the description, intervals, or date formats are invalid, or saving fails.
      */
     private void handleEvent(String input) throws BraunException {
         String body = input.length() > 5 ? input.substring(5).trim() : "";
@@ -280,9 +281,9 @@ public class Braun {
     /**
      * Stores a validated task in the list, persists changes to disk, and displays confirmation.
      *
-     * @param task the task to store
-     * @param description description used for lore remark matching
-     * @throws BraunException if saving to disk fails
+     * @param task the task to store.
+     * @param description description used for lore remark matching.
+     * @throws BraunException if saving to disk fails.
      */
     private void addTask(Task task, String description) throws BraunException {
         tasks.add(task);
@@ -293,7 +294,7 @@ public class Braun {
     /**
      * Main program entry point.
      *
-     * @param args optional command line arguments where args[0] is the storage path
+     * @param args optional command line arguments where args[0] is the storage path.
      */
     public static void main(String[] args) {
         String storagePath = (args.length > 0) ? args[0] : DEFAULT_STORAGE_PATH;

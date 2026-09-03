@@ -27,7 +27,7 @@ public class Storage {
      * Constructs a new {@code Storage} handler for the specified file path string.
      * The path string is resolved using OS-independent {@link Paths#get(String, String...)}.
      *
-     * @param filePath relative or absolute path string to the data file
+     * @param filePath relative or absolute path string to the data file.
      */
     public Storage(String filePath) {
         this.filePath = Paths.get(filePath);
@@ -36,7 +36,7 @@ public class Storage {
     /**
      * Returns the resolved {@link Path} of the storage file.
      *
-     * @return the storage file path
+     * @return the storage file path.
      */
     public Path getFilePath() {
         return filePath;
@@ -47,7 +47,7 @@ public class Storage {
      * If the file or its parent directory does not exist, an empty list is returned.
      * Corrupted lines are skipped with a warning logged to {@code System.err}.
      *
-     * @return a list of restored {@link Task} objects
+     * @return a list of restored {@link Task} objects.
      */
     public ArrayList<Task> load() {
         ArrayList<Task> tasks = new ArrayList<>();
@@ -67,7 +67,8 @@ public class Storage {
                     Task task = parseTask(trimmed);
                     tasks.add(task);
                 } catch (BraunException e) {
-                    System.err.println("*static* Warning: Skipping corrupted log entry: " + trimmed + " (" + e.getMessage() + ")");
+                    System.err.println("*static* Warning: Skipping corrupted log entry: "
+                            + trimmed + " (" + e.getMessage() + ")");
                 }
             }
         } catch (IOException e) {
@@ -81,8 +82,8 @@ public class Storage {
      * Saves the current list of tasks to the storage file on the hard disk.
      * Automatically creates any missing parent directories before writing.
      *
-     * @param tasks the list of tasks to save
-     * @throws BraunException if an I/O error occurs while creating directories or writing the file
+     * @param tasks the list of tasks to save.
+     * @throws BraunException if an I/O error occurs while creating directories or writing the file.
      */
     public void save(ArrayList<Task> tasks) throws BraunException {
         try {
@@ -109,9 +110,9 @@ public class Storage {
      * {@code D | <0/1> | <description> | <by>} for Deadline, or
      * {@code E | <0/1> | <description> | <from> | <to>} for Event.
      *
-     * @param line the text line to parse
-     * @return the reconstructed {@link Task} object
-     * @throws BraunException if the line is corrupted or has missing fields
+     * @param line the text line to parse.
+     * @return the reconstructed {@link Task} object.
+     * @throws BraunException if the line is corrupted or has missing fields.
      */
     public static Task parseTask(String line) throws BraunException {
         String[] parts = line.split(" \\| ");

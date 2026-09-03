@@ -21,10 +21,10 @@ public class Event extends Task {
      * Constructs a new {@code Event} task by parsing the specified start and end date/time strings.
      * If the end time is given without a date, the start date is used by default.
      *
-     * @param description the textual description of the event
-     * @param from the start date/time string
-     * @param to the end date/time string
-     * @throws BraunException if either date/time is invalid or if end time is before start time
+     * @param description the textual description of the event.
+     * @param from the start date/time string.
+     * @param to the end date/time string.
+     * @throws BraunException if either date/time is invalid or if end time is before start time.
      */
     public Event(String description, String from, String to) throws BraunException {
         super(description);
@@ -39,12 +39,13 @@ public class Event extends Task {
     /**
      * Constructs a new {@code Event} task with pre-parsed {@link DateTimeUtil.TaskDateTime} instances.
      *
-     * @param description the textual description of the event
-     * @param from the start date/time object
-     * @param to the end date/time object
-     * @throws BraunException if end time is before start time
+     * @param description the textual description of the event.
+     * @param from the start date/time object.
+     * @param to the end date/time object.
+     * @throws BraunException if end time is before start time.
      */
-    public Event(String description, DateTimeUtil.TaskDateTime from, DateTimeUtil.TaskDateTime to) throws BraunException {
+    public Event(String description, DateTimeUtil.TaskDateTime from, DateTimeUtil.TaskDateTime to)
+            throws BraunException {
         super(description);
         this.from = from;
         this.to = to;
@@ -57,7 +58,7 @@ public class Event extends Task {
     /**
      * Returns the structured start date/time of the event.
      *
-     * @return the start date/time object
+     * @return the start date/time object.
      */
     public DateTimeUtil.TaskDateTime getFrom() {
         return from;
@@ -66,7 +67,7 @@ public class Event extends Task {
     /**
      * Returns the structured end date/time of the event.
      *
-     * @return the end date/time object
+     * @return the end date/time object.
      */
     public DateTimeUtil.TaskDateTime getTo() {
         return to;
@@ -75,8 +76,8 @@ public class Event extends Task {
     /**
      * Checks if this event occurs on or spans across the specified date.
      *
-     * @param queryDate date to compare against
-     * @return {@code true} if the query date falls within [from.date, to.date]
+     * @param queryDate date to compare against.
+     * @return {@code true} if the query date falls within [from.date, to.date].
      */
     @Override
     public boolean isOnDate(LocalDate queryDate) {
@@ -87,7 +88,7 @@ public class Event extends Task {
      * Returns the formatted string representation of the event task,
      * prefixed with the [E] identifier tag and appending formatted start and end times.
      *
-     * @return formatted string such as "[E][ ] project meeting (from: Aug 06 2026, 2:00PM to: Aug 06 2026, 4:00PM)"
+     * @return formatted string such as "[E][ ] project meeting (from: Aug 06 2026, 2:00PM to: Aug 06 2026, 4:00PM)".
      */
     @Override
     public String toString() {
@@ -97,7 +98,7 @@ public class Event extends Task {
     /**
      * Returns the formatted string representation of the event task for file storage.
      *
-     * @return a pipe-delimited string prefixed with the 'E' tag and containing storage date/times
+     * @return a pipe-delimited string prefixed with the 'E' tag and containing storage date/times.
      */
     @Override
     public String toFileFormat() {

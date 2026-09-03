@@ -20,7 +20,8 @@ public class EventTest {
     public void constructor_validInterval_success() throws BraunException {
         Event event = new Event("broadcast discussion", "2026-08-24 1400", "2026-08-24 1600");
         assertEquals("broadcast discussion", event.getDescription());
-        assertEquals("[E][ ] broadcast discussion (from: Aug 24 2026, 2:00PM to: Aug 24 2026, 4:00PM)", event.toString());
+        assertEquals("[E][ ] broadcast discussion (from: Aug 24 2026, 2:00PM to: Aug 24 2026, 4:00PM)",
+                event.toString());
     }
 
     @Test

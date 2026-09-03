@@ -16,8 +16,10 @@ import braun.exception.BraunException;
  */
 public class DateTimeUtil {
 
-    private static final DateTimeFormatter DISPLAY_DATE_FORMAT = DateTimeFormatter.ofPattern("MMM dd yyyy", Locale.ENGLISH);
-    private static final DateTimeFormatter DISPLAY_TIME_FORMAT = DateTimeFormatter.ofPattern("h:mma", Locale.ENGLISH);
+    private static final DateTimeFormatter DISPLAY_DATE_FORMAT =
+            DateTimeFormatter.ofPattern("MMM dd yyyy", Locale.ENGLISH);
+    private static final DateTimeFormatter DISPLAY_TIME_FORMAT =
+            DateTimeFormatter.ofPattern("h:mma", Locale.ENGLISH);
 
     private static final DateTimeFormatter[] DATE_TIME_FORMATTERS = {
         DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm", Locale.ENGLISH),
@@ -55,8 +57,8 @@ public class DateTimeUtil {
         /**
          * Constructs a new {@code TaskDateTime} with the specified date and optional time.
          *
-         * @param date the date component
-         * @param time the time component, or {@code null} if only a date was specified
+         * @param date the date component.
+         * @param time the time component, or {@code null} if only a date was specified.
          */
         public TaskDateTime(LocalDate date, LocalTime time) {
             this.date = date;
@@ -66,7 +68,7 @@ public class DateTimeUtil {
         /**
          * Returns the date component of this date/time.
          *
-         * @return the local date
+         * @return the local date.
          */
         public LocalDate getDate() {
             return date;
@@ -75,7 +77,7 @@ public class DateTimeUtil {
         /**
          * Returns the time component of this date/time.
          *
-         * @return the local time, or {@code null} if no time is set
+         * @return the local time, or {@code null} if no time is set.
          */
         public LocalTime getTime() {
             return time;
@@ -84,7 +86,7 @@ public class DateTimeUtil {
         /**
          * Checks whether this instance includes a time component.
          *
-         * @return {@code true} if a time component is present, {@code false} otherwise
+         * @return {@code true} if a time component is present, {@code false} otherwise.
          */
         public boolean hasTime() {
             return time != null;
@@ -93,7 +95,7 @@ public class DateTimeUtil {
         /**
          * Formats the date/time for user display (e.g. "Aug 30 2026, 5:00PM" or "Aug 30 2026").
          *
-         * @return display string
+         * @return display string.
          */
         public String formatForDisplay() {
             if (time != null) {
@@ -105,7 +107,7 @@ public class DateTimeUtil {
         /**
          * Formats the date/time for storage file persistence.
          *
-         * @return storage string
+         * @return storage string.
          */
         public String formatForFile() {
             if (time != null) {
@@ -117,8 +119,8 @@ public class DateTimeUtil {
         /**
          * Checks if this date/time occurs before another {@code TaskDateTime}.
          *
-         * @param other the other date/time to compare against
-         * @return {@code true} if this date/time is chronologically before {@code other}, {@code false} otherwise
+         * @param other the other date/time to compare against.
+         * @return {@code true} if this date/time is chronologically before {@code other}, {@code false} otherwise.
          */
         public boolean isBefore(TaskDateTime other) {
             if (!this.date.equals(other.date)) {
@@ -130,6 +132,11 @@ public class DateTimeUtil {
             return false;
         }
 
+        /**
+         * Returns the string representation of this date/time formatted for display.
+         *
+         * @return display formatted date/time string.
+         */
         @Override
         public String toString() {
             return formatForDisplay();
@@ -139,9 +146,9 @@ public class DateTimeUtil {
     /**
      * Parses a date or date-time text string into a {@link TaskDateTime}.
      *
-     * @param text the date/time string to parse
-     * @return parsed {@link TaskDateTime}
-     * @throws BraunException if the text cannot be parsed with any supported format
+     * @param text the date/time string to parse.
+     * @return parsed {@link TaskDateTime}.
+     * @throws BraunException if the text cannot be parsed with any supported format.
      */
     public static TaskDateTime parse(String text) throws BraunException {
         return parse(text, null);
@@ -151,10 +158,10 @@ public class DateTimeUtil {
      * Parses a date or date-time text string into a {@link TaskDateTime}, with optional default date fallback
      * when only a time is provided.
      *
-     * @param text the date/time string to parse
-     * @param defaultDate fallback date to use if only time is given, or null
-     * @return parsed {@link TaskDateTime}
-     * @throws BraunException if the text cannot be parsed
+     * @param text the date/time string to parse.
+     * @param defaultDate fallback date to use if only time is given, or null.
+     * @return parsed {@link TaskDateTime}.
+     * @throws BraunException if the text cannot be parsed.
      */
     public static TaskDateTime parse(String text, LocalDate defaultDate) throws BraunException {
         String trimmed = text.trim();
@@ -194,15 +201,16 @@ public class DateTimeUtil {
             }
         }
 
-        throw new BraunException("*static* Invalid date format! Please use yyyy-MM-dd (e.g. 2026-08-30) or yyyy-MM-dd HHmm / d/M/yyyy HHmm (e.g. 2026-08-30 1700 or 2/12/2019 1800).");
+        throw new BraunException("*static* Invalid date format! Please use yyyy-MM-dd (e.g. 2026-08-30) "
+                + "or yyyy-MM-dd HHmm / d/M/yyyy HHmm (e.g. 2026-08-30 1700 or 2/12/2019 1800).");
     }
 
     /**
      * Parses a date-only search query string into a {@link LocalDate}.
      *
-     * @param text search date string
-     * @return parsed {@link LocalDate}
-     * @throws BraunException if invalid format
+     * @param text search date string.
+     * @return parsed {@link LocalDate}.
+     * @throws BraunException if invalid format.
      */
     public static LocalDate parseDate(String text) throws BraunException {
         String trimmed = text.trim();
@@ -224,8 +232,8 @@ public class DateTimeUtil {
     /**
      * Formats a {@link LocalDate} using standard display format (MMM dd yyyy).
      *
-     * @param date date to format
-     * @return formatted date string
+     * @param date date to format.
+     * @return formatted date string.
      */
     public static String formatDate(LocalDate date) {
         return date.format(DISPLAY_DATE_FORMAT);

@@ -17,9 +17,9 @@ public class Deadline extends Task {
     /**
      * Constructs a new {@code Deadline} task by parsing the specified date/time string.
      *
-     * @param description the textual description of the deadline task
-     * @param by the date/time string by which the task is due
-     * @throws BraunException if the date/time format is invalid
+     * @param description the textual description of the deadline task.
+     * @param by the date/time string by which the task is due.
+     * @throws BraunException if the date/time format is invalid.
      */
     public Deadline(String description, String by) throws BraunException {
         super(description);
@@ -29,8 +29,8 @@ public class Deadline extends Task {
     /**
      * Constructs a new {@code Deadline} task with a pre-parsed {@link DateTimeUtil.TaskDateTime}.
      *
-     * @param description the textual description of the deadline task
-     * @param by the deadline date/time object
+     * @param description the textual description of the deadline task.
+     * @param by the deadline date/time object.
      */
     public Deadline(String description, DateTimeUtil.TaskDateTime by) {
         super(description);
@@ -40,7 +40,7 @@ public class Deadline extends Task {
     /**
      * Returns the structured date/time of the deadline.
      *
-     * @return the deadline date/time object
+     * @return the deadline date/time object.
      */
     public DateTimeUtil.TaskDateTime getBy() {
         return by;
@@ -49,8 +49,8 @@ public class Deadline extends Task {
     /**
      * Checks if this deadline is due on the specified date.
      *
-     * @param queryDate date to compare against
-     * @return {@code true} if the deadline date matches the query date
+     * @param queryDate date to compare against.
+     * @return {@code true} if the deadline date matches the query date.
      */
     @Override
     public boolean isOnDate(LocalDate queryDate) {
@@ -61,7 +61,7 @@ public class Deadline extends Task {
      * Returns the formatted string representation of the deadline task,
      * prefixed with the [D] identifier tag and appending the formatted due time.
      *
-     * @return formatted string such as "[D][ ] return book (by: Jun 06 2026, 6:00PM)"
+     * @return formatted string such as "[D][ ] return book (by: Jun 06 2026, 6:00PM)".
      */
     @Override
     public String toString() {
@@ -71,7 +71,7 @@ public class Deadline extends Task {
     /**
      * Returns the formatted string representation of the deadline task for file storage.
      *
-     * @return a pipe-delimited string prefixed with the 'D' tag and containing the storage date/time
+     * @return a pipe-delimited string prefixed with the 'D' tag and containing the storage date/time.
      */
     @Override
     public String toFileFormat() {

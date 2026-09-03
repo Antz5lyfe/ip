@@ -89,7 +89,7 @@ public class Ui {
     /**
      * Displays an error message wrapped within broadcast dividers.
      *
-     * @param message error text to present to the user
+     * @param message error text to present to the user.
      */
     public void showError(String message) {
         System.out.println(DIVIDER);
@@ -109,7 +109,7 @@ public class Ui {
     /**
      * Reads the next line of command input from the user.
      *
-     * @return the raw input string, or an empty string if no line is available
+     * @return the raw input string, or an empty string if no line is available.
      */
     public String readCommand() {
         return scanner.hasNextLine() ? scanner.nextLine() : "";
@@ -118,7 +118,7 @@ public class Ui {
     /**
      * Checks if more input lines are available from the input stream.
      *
-     * @return {@code true} if an input line is present; {@code false} otherwise
+     * @return {@code true} if an input line is present; {@code false} otherwise.
      */
     public boolean hasNextCommand() {
         return scanner.hasNextLine();
@@ -134,7 +134,7 @@ public class Ui {
     /**
      * Displays all tasks currently in the broadcast list.
      *
-     * @param tasks list of tasks to display
+     * @param tasks list of tasks to display.
      */
     public void showTaskList(ArrayList<Task> tasks) {
         System.out.println(DIVIDER);
@@ -149,9 +149,9 @@ public class Ui {
      * Displays confirmation when a task is successfully added to the broadcast schedule,
      * including contextual lore remarks or randomized broadcast catchphrases.
      *
-     * @param task the newly added task
-     * @param totalCount total number of tasks in the schedule
-     * @param description original description used for lore remark matching
+     * @param task the newly added task.
+     * @param totalCount total number of tasks in the schedule.
+     * @param description original description used for lore remark matching.
      */
     public void showAddedTask(Task task, int totalCount, String description) {
         System.out.println(DIVIDER);
@@ -165,7 +165,7 @@ public class Ui {
     /**
      * Displays confirmation when a task is marked as completed.
      *
-     * @param task the marked task
+     * @param task the marked task.
      */
     public void showMarkedTask(Task task) {
         System.out.println(DIVIDER);
@@ -177,7 +177,7 @@ public class Ui {
     /**
      * Displays confirmation when a task is marked as not completed.
      *
-     * @param task the unmarked task
+     * @param task the unmarked task.
      */
     public void showUnmarkedTask(Task task) {
         System.out.println(DIVIDER);
@@ -189,8 +189,8 @@ public class Ui {
     /**
      * Displays confirmation when a task is removed from the broadcast schedule.
      *
-     * @param task the removed task
-     * @param remainingCount total tasks remaining
+     * @param task the removed task.
+     * @param remainingCount total tasks remaining.
      */
     public void showDeletedTask(Task task, int remainingCount) {
         System.out.println(DIVIDER);
@@ -203,8 +203,8 @@ public class Ui {
     /**
      * Displays tasks scheduled for a specific date, or a message indicating none were found.
      *
-     * @param formattedDate human-readable formatted date string
-     * @param matchingTasks list of tasks occurring on that date
+     * @param formattedDate human-readable formatted date string.
+     * @param matchingTasks list of tasks occurring on that date.
      */
     public void showTasksOnDate(String formattedDate, ArrayList<Task> matchingTasks) {
         System.out.println(DIVIDER);
@@ -224,15 +224,17 @@ public class Ui {
      * Scans for thematic keywords to provide lore-specific dialogue,
      * or falls back to a random general broadcast remark.
      *
-     * @param taskDescription description text of the task
-     * @return a thematic or randomized talk-show host remark
+     * @param taskDescription description text of the task.
+     * @return a thematic or randomized talk-show host remark.
      */
     public String getRemarkForTask(String taskDescription) {
         String lower = taskDescription.toLowerCase();
 
-        if (lower.contains("ghost") || lower.contains("anomaly") || lower.contains("monster") || lower.contains("entity")) {
+        if (lower.contains("ghost") || lower.contains("anomaly")
+                || lower.contains("monster") || lower.contains("entity")) {
             return "*screen flickers* A new anomaly! Daydream Inc. will want this documented.";
-        } else if (lower.contains("work") || lower.contains("deadline") || lower.contains("report") || lower.contains("salary")) {
+        } else if (lower.contains("work") || lower.contains("deadline")
+                || lower.contains("report") || lower.contains("salary")) {
             return "*chime* Even trapped in a ghost story, we still gotta work, don't we?";
         } else if (lower.contains("explore") || lower.contains("investigate") || lower.contains("record")) {
             return "*static hiss* Watch your step, Field Explorer! Duly noted in the Dark Exploration Records.";
@@ -250,7 +252,7 @@ public class Ui {
     /**
      * Selects a random catchphrase from Braun's general broadcast remark pool.
      *
-     * @return a random talk-show host remark string
+     * @return a random talk-show host remark string.
      */
     public String getRandomGeneralRemark() {
         return GENERAL_REMARKS[RANDOM.nextInt(GENERAL_REMARKS.length)];
