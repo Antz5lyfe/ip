@@ -87,6 +87,27 @@ public class Ui {
     }
 
     /**
+     * Returns Braun's theatrical broadcast welcome greeting for display in the GUI.
+     *
+     * @return opening welcome greeting string.
+     */
+    public String getWelcomeMessage() {
+        return "*kzzzt... bzzzt!*\n"
+                + "Good evening, dear guest! I'm Braun, host of the Late-Night Show.\n"
+                + "What can I do for you?";
+    }
+
+    /**
+     * Returns Braun's theatrical signoff broadcast message upon program exit.
+     *
+     * @return farewell signoff message string.
+     */
+    public String getGoodbyeMessage() {
+        return "*bzzzt* That's a wrap for today's broadcast!\n"
+                + "Bye. Hope to see you again soon!";
+    }
+
+    /**
      * Displays an error message wrapped within broadcast dividers.
      *
      * @param message error text to present to the user.
@@ -94,6 +115,19 @@ public class Ui {
     public void showError(String message) {
         System.out.println(DIVIDER);
         System.out.println(INDENT + message);
+        System.out.println(DIVIDER);
+    }
+
+    /**
+     * Displays a multi-line response enclosed within broadcast dividers and standard indentation.
+     *
+     * @param response the response text to format and display.
+     */
+    public void showResponse(String response) {
+        System.out.println(DIVIDER);
+        for (String line : response.split("\n")) {
+            System.out.println(INDENT + line);
+        }
         System.out.println(DIVIDER);
     }
 
@@ -275,5 +309,103 @@ public class Ui {
      */
     public String getRandomGeneralRemark() {
         return GENERAL_REMARKS[RANDOM.nextInt(GENERAL_REMARKS.length)];
+    }
+
+    /**
+     * Formats the list of scheduled broadcast tasks as a multi-line string.
+     *
+     * @param tasks list of tasks to format.
+     * @return formatted task list string.
+     */
+    public String formatTaskList(ArrayList<Task> tasks) {
+        StringBuilder sb = new StringBuilder("Here are the tasks in your list:");
+        for (int i = 0; i < tasks.size(); i++) {
+            sb.append("\n").append(i + 1).append(".").append(tasks.get(i));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Formats confirmation when a task is successfully added to the broadcast schedule.
+     *
+     * @param task the newly added task.
+     * @param totalCount total number of tasks in the schedule.
+     * @param description original description used for lore remark matching.
+     * @return formatted addition confirmation string.
+     */
+    public String formatAddedTask(Task task, int totalCount, String description) {
+        return "Got it. I've added this task:\n"
+                + "  " + task + "\n"
+                + "Now you have " + totalCount + " tasks in the list.\n"
+                + getRemarkForTask(description);
+    }
+
+    /**
+     * Formats confirmation when a task is marked as completed.
+     *
+     * @param task the marked task.
+     * @return formatted completion confirmation string.
+     */
+    public String formatMarkedTask(Task task) {
+        return "Nice! I've marked this task as done:\n  " + task;
+    }
+
+    /**
+     * Formats confirmation when a task is marked as not completed.
+     *
+     * @param task the unmarked task.
+     * @return formatted unmark confirmation string.
+     */
+    public String formatUnmarkedTask(Task task) {
+        return "OK, I've marked this task as not done yet:\n  " + task;
+    }
+
+    /**
+     * Formats confirmation when a task is removed from the broadcast schedule.
+     *
+     * @param task the removed task.
+     * @param remainingCount total tasks remaining.
+     * @return formatted deletion confirmation string.
+     */
+    public String formatDeletedTask(Task task, int remainingCount) {
+        return "Noted. I've removed this task:\n"
+                + "  " + task + "\n"
+                + "Now you have " + remainingCount + " tasks in the list.";
+    }
+
+    /**
+     * Formats tasks scheduled for a specific date, or a message indicating none were found.
+     *
+     * @param formattedDate human-readable formatted date string.
+     * @param matchingTasks list of tasks occurring on that date.
+     * @return formatted date query result string.
+     */
+    public String formatTasksOnDate(String formattedDate, ArrayList<Task> matchingTasks) {
+        if (matchingTasks.isEmpty()) {
+            return "*static* No broadcast tasks scheduled for " + formattedDate + ".";
+        }
+        StringBuilder sb = new StringBuilder("Here are the tasks scheduled for " + formattedDate + ":");
+        for (int i = 0; i < matchingTasks.size(); i++) {
+            sb.append("\n").append(i + 1).append(".").append(matchingTasks.get(i));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Formats tasks whose descriptions match a search keyword, or a message indicating none were found.
+     *
+     * @param keyword the search keyword or phrase.
+     * @param matchingTasks list of tasks matching the keyword.
+     * @return formatted search query result string.
+     */
+    public String formatMatchingTasks(String keyword, ArrayList<Task> matchingTasks) {
+        if (matchingTasks.isEmpty()) {
+            return "*static* No matching broadcast tasks found for: " + keyword;
+        }
+        StringBuilder sb = new StringBuilder("Here are the matching tasks in your list:");
+        for (int i = 0; i < matchingTasks.size(); i++) {
+            sb.append("\n").append(i + 1).append(".").append(matchingTasks.get(i));
+        }
+        return sb.toString();
     }
 }

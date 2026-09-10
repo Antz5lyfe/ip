@@ -28,6 +28,13 @@ public class Braun {
     private final ArrayList<Task> tasks;
 
     /**
+     * Constructs a new {@code Braun} application instance with the default storage path.
+     */
+    public Braun() {
+        this(DEFAULT_STORAGE_PATH);
+    }
+
+    /**
      * Constructs a new {@code Braun} application instance with the specified file storage path.
      *
      * @param filePath path to the local task persistence file.
@@ -36,6 +43,29 @@ public class Braun {
         this.ui = new Ui();
         this.storage = new Storage(filePath);
         this.tasks = storage.load();
+    }
+
+    /**
+     * Returns Braun's opening broadcast greeting for display in the GUI.
+     *
+     * @return opening welcome greeting string.
+     */
+    public String getWelcomeMessage() {
+        return ui.getWelcomeMessage();
+    }
+
+    /**
+     * Generates a response for the user's chat input in the GUI.
+     *
+     * @param input raw command string entered by the user.
+     * @return Braun's theatrical broadcast response string.
+     */
+    public String getResponse(String input) {
+        try {
+            return executeCommand(input);
+        } catch (BraunException e) {
+            return e.getMessage();
+        }
     }
 
     /**
@@ -63,37 +93,53 @@ public class Braun {
     }
 
     /**
-     * Parses and dispatches a single user broadcast command.
+     * Parses and dispatches a single user broadcast command for console output.
      *
      * @param input the raw input string from the user.
      * @throws BraunException if the command is unrecognized or has invalid parameters.
      */
     private void processCommand(String input) throws BraunException {
+        String response = executeCommand(input);
+        if (!response.isEmpty()) {
+            ui.showResponse(response);
+        }
+    }
+
+    /**
+     * Parses and executes a user broadcast command, returning Braun's response string.
+     *
+     * @param input the raw input string from the user.
+     * @return the response string resulting from command execution.
+     * @throws BraunException if the command is unrecognized or has invalid parameters.
+     */
+    public String executeCommand(String input) throws BraunException {
         String trimmed = input.trim();
         if (trimmed.isEmpty()) {
-            return;
+            return "";
         }
 
         String lower = trimmed.toLowerCase();
 
-        if (lower.equals("list")) {
-            handleList();
+        if (lower.equals("bye")) {
+            return ui.getGoodbyeMessage();
+        } else if (lower.equals("list")) {
+            return handleList();
         } else if (lower.equals("mark") || lower.startsWith("mark ")) {
-            handleMark(trimmed);
+            return handleMark(trimmed);
         } else if (lower.equals("unmark") || lower.startsWith("unmark ")) {
-            handleUnmark(trimmed);
+            return handleUnmark(trimmed);
         } else if (lower.equals("delete") || lower.startsWith("delete ")) {
-            handleDelete(trimmed);
+            return handleDelete(trimmed);
         } else if (lower.equals("date") || lower.startsWith("date ")) {
-            handleDate(trimmed);
+            return handleDate(trimmed);
         } else if (lower.equals("find") || lower.startsWith("find ")) {
-            handleFind(trimmed);
+            return handleFind(trimmed);
         } else if (lower.equals("todo") || lower.startsWith("todo ")) {
-            handleTodo(trimmed);
+            return handleTodo(trimmed);
         } else if (lower.equals("deadline") || lower.startsWith("deadline ")) {
-            handleDeadline(trimmed);
+            return handleDeadline(trimmed);
         } else if (lower.equals("event") || lower.startsWith("event ")) {
-            handleEvent(trimmed);
+            return handleEvent(trimmed);
         } else {
             throw new BraunException("*static* Unknown broadcast command! "
                     + "Please use todo, deadline, event, list, mark, unmark, delete, find, date, or bye.");
@@ -102,18 +148,21 @@ public class Braun {
 
     /**
      * Displays all tasks currently stored in the broadcast schedule.
+     *
+     * @return formatted task list response string.
      */
-    private void handleList() {
-        ui.showTaskList(tasks);
+    private String handleList() {
+        return ui.formatTaskList(tasks);
     }
 
     /**
      * Searches and displays all tasks occurring on a specified date.
      *
      * @param input the raw date command string.
+     * @return formatted tasks on date response string.
      * @throws BraunException if the date argument is missing or invalid.
      */
-    private void handleDate(String input) throws BraunException {
+    private String handleDate(String input) throws BraunException {
         String arg = input.length() > 4 ? input.substring(4).trim() : "";
         if (arg.isEmpty()) {
             throw new BraunException("*static* Please specify a date to search for (e.g. date 2026-08-30).");
@@ -128,16 +177,17 @@ public class Braun {
         }
 
         String formattedDate = DateTimeUtil.formatDate(queryDate);
-        ui.showTasksOnDate(formattedDate, matchingTasks);
+        return ui.formatTasksOnDate(formattedDate, matchingTasks);
     }
 
     /**
      * Searches and displays tasks containing the specified keyword in their description.
      *
      * @param input the raw find command string.
+     * @return formatted matching tasks response string.
      * @throws BraunException if the keyword argument is missing.
      */
-    private void handleFind(String input) throws BraunException {
+    private String handleFind(String input) throws BraunException {
         String keyword = input.length() > 4 ? input.substring(4).trim() : "";
         if (keyword.isEmpty()) {
             throw new BraunException("*static* Please specify a keyword to search for (e.g. find book).");
@@ -151,16 +201,17 @@ public class Braun {
             }
         }
 
-        ui.showMatchingTasks(keyword, matchingTasks);
+        return ui.formatMatchingTasks(keyword, matchingTasks);
     }
 
     /**
      * Marks a specified task as completed and persists changes to disk.
      *
      * @param input the raw mark command string.
+     * @return formatted marked task response string.
      * @throws BraunException if the index is missing, not a number, out of bounds, or saving fails.
      */
-    private void handleMark(String input) throws BraunException {
+    private String handleMark(String input) throws BraunException {
         String arg = input.length() > 4 ? input.substring(4).trim() : "";
         if (arg.isEmpty()) {
             throw new BraunException("*static* Please provide a valid task number to mark.");
@@ -181,16 +232,17 @@ public class Braun {
         task.markAsDone();
         storage.save(tasks);
 
-        ui.showMarkedTask(task);
+        return ui.formatMarkedTask(task);
     }
 
     /**
      * Marks a specified task as not completed (undone) and persists changes to disk.
      *
      * @param input the raw unmark command string.
+     * @return formatted unmarked task response string.
      * @throws BraunException if the index is missing, not a number, out of bounds, or saving fails.
      */
-    private void handleUnmark(String input) throws BraunException {
+    private String handleUnmark(String input) throws BraunException {
         String arg = input.length() > 6 ? input.substring(6).trim() : "";
         if (arg.isEmpty()) {
             throw new BraunException("*static* Please provide a valid task number to unmark.");
@@ -211,16 +263,17 @@ public class Braun {
         task.markAsUndone();
         storage.save(tasks);
 
-        ui.showUnmarkedTask(task);
+        return ui.formatUnmarkedTask(task);
     }
 
     /**
      * Removes a specified task from the schedule and persists changes to disk.
      *
      * @param input the raw delete command string.
+     * @return formatted deleted task response string.
      * @throws BraunException if the index is missing, not a number, out of bounds, or saving fails.
      */
-    private void handleDelete(String input) throws BraunException {
+    private String handleDelete(String input) throws BraunException {
         String arg = input.length() > 6 ? input.substring(6).trim() : "";
         if (arg.isEmpty()) {
             throw new BraunException("*static* Please provide a valid task number to delete.");
@@ -240,30 +293,32 @@ public class Braun {
         Task removed = tasks.remove(index);
         storage.save(tasks);
 
-        ui.showDeletedTask(removed, tasks.size());
+        return ui.formatDeletedTask(removed, tasks.size());
     }
 
     /**
      * Validates and adds a new Todo task to the schedule and saves it to disk.
      *
      * @param input the raw todo command string.
+     * @return formatted added todo response string.
      * @throws BraunException if the description is empty or saving fails.
      */
-    private void handleTodo(String input) throws BraunException {
+    private String handleTodo(String input) throws BraunException {
         String desc = input.length() > 4 ? input.substring(4).trim() : "";
         if (desc.isEmpty()) {
             throw new BraunException("*static* The description of a todo cannot be empty.");
         }
-        addTask(new Todo(desc), desc);
+        return addTask(new Todo(desc), desc);
     }
 
     /**
      * Validates and adds a new Deadline task to the schedule and saves it to disk.
      *
      * @param input the raw deadline command string.
+     * @return formatted added deadline response string.
      * @throws BraunException if the description, due time, or date format is invalid, or saving fails.
      */
-    private void handleDeadline(String input) throws BraunException {
+    private String handleDeadline(String input) throws BraunException {
         String body = input.length() > 8 ? input.substring(8).trim() : "";
         int byIndex = body.toLowerCase().indexOf("/by ");
         if (byIndex == -1) {
@@ -276,16 +331,17 @@ public class Braun {
             throw new BraunException("*static* Deadline description and due time cannot be empty.");
         }
 
-        addTask(new Deadline(desc, by), desc);
+        return addTask(new Deadline(desc, by), desc);
     }
 
     /**
      * Validates and adds a new Event task to the schedule and saves it to disk.
      *
      * @param input the raw event command string.
+     * @return formatted added event response string.
      * @throws BraunException if the description, intervals, or date formats are invalid, or saving fails.
      */
-    private void handleEvent(String input) throws BraunException {
+    private String handleEvent(String input) throws BraunException {
         String body = input.length() > 5 ? input.substring(5).trim() : "";
         int fromIndex = body.toLowerCase().indexOf("/from ");
         int toIndex = body.toLowerCase().indexOf("/to ");
@@ -300,7 +356,7 @@ public class Braun {
             throw new BraunException("*static* Event description, start time, and end time cannot be empty.");
         }
 
-        addTask(new Event(desc, from, to), desc);
+        return addTask(new Event(desc, from, to), desc);
     }
 
     /**
@@ -308,12 +364,13 @@ public class Braun {
      *
      * @param task the task to store.
      * @param description description used for lore remark matching.
+     * @return formatted task addition response string.
      * @throws BraunException if saving to disk fails.
      */
-    private void addTask(Task task, String description) throws BraunException {
+    private String addTask(Task task, String description) throws BraunException {
         tasks.add(task);
         storage.save(tasks);
-        ui.showAddedTask(task, tasks.size(), description);
+        return ui.formatAddedTask(task, tasks.size(), description);
     }
 
     /**

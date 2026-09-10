@@ -2,6 +2,12 @@ plugins {
     id 'java'
     id 'application'
     id 'com.gradleup.shadow' version '9.5.1'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+}
+
+javafx {
+    version = '21.0.6'
+    modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
 
 java {
@@ -37,7 +43,7 @@ test {
 }
 
 application {
-    mainClass = 'braun.Braun'
+    mainClass = 'braun.Launcher'
 }
 
 jar {
