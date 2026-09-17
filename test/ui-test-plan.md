@@ -576,7 +576,62 @@ find
 
 ---
 
-### Test Case 32: Exit Application
+### Test Case 32: Find Multiple Keywords (OR Search)
+**Aim**: Verify that `find` matches tasks containing any of multiple whitespace-separated keywords.
+
+**Input**:
+```
+find rabbit ghost
+```
+
+**Expected Output**:
+```
+    ____________________________________________________________
+     Here are the matching tasks in your list:
+     1.[T][ ] ghost exploration
+     2.[E][ ] search pink rabbit doll (from: Aug 24 2026, 2:00PM to: Aug 24 2026, 4:00PM)
+    ____________________________________________________________
+```
+
+---
+
+### Test Case 33: Find Quoted Exact Phrase
+**Aim**: Verify that `find` matches exact phrases enclosed in double quotes.
+
+**Input**:
+```
+find "pink rabbit"
+```
+
+**Expected Output**:
+```
+    ____________________________________________________________
+     Here are the matching tasks in your list:
+     1.[E][ ] search pink rabbit doll (from: Aug 24 2026, 2:00PM to: Aug 24 2026, 4:00PM)
+    ____________________________________________________________
+```
+
+---
+
+### Test Case 34: Find By Date Keyword
+**Aim**: Verify that `find` matches tasks by date strings appearing in their schedule.
+
+**Input**:
+```
+find Aug 24
+```
+
+**Expected Output**:
+```
+    ____________________________________________________________
+     Here are the matching tasks in your list:
+     1.[E][ ] search pink rabbit doll (from: Aug 24 2026, 2:00PM to: Aug 24 2026, 4:00PM)
+    ____________________________________________________________
+```
+
+---
+
+### Test Case 35: Exit Application
 **Aim**: Verify that the `bye` command prints the farewell broadcast message and exits cleanly.
 
 **Input**:

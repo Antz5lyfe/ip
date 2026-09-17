@@ -1,6 +1,7 @@
 package braun;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
@@ -88,5 +89,50 @@ public class BraunTest {
         String findResponse = braun.getResponse("find rabbit");
         assertTrue(findResponse.contains("Here are the matching tasks in your list:"));
         assertTrue(findResponse.contains("1.[T][ ] pink rabbit doll"));
+    }
+
+    @Test
+    public void getResponse_findMultipleKeywords_returnsAllMatchingTasks() {
+        Braun braun = createTestBraun();
+        braun.getResponse("todo pink rabbit doll");
+        braun.getResponse("todo investigate ghost anomaly");
+        braun.getResponse("todo staff coffee break");
+
+        String findResponse = braun.getResponse("find rabbit ghost");
+        assertTrue(findResponse.contains("Here are the matching tasks in your list:"));
+        assertTrue(findResponse.contains("1.[T][ ] pink rabbit doll"));
+        assertTrue(findResponse.contains("2.[T][ ] investigate ghost anomaly"));
+        assertFalse(findResponse.contains("coffee break"));
+    }
+
+    @Test
+    public void getResponse_findQuotedPhrase_matchesExactPhrase() {
+        Braun braun = createTestBraun();
+        braun.getResponse("todo pink rabbit doll");
+        braun.getResponse("todo rabbit in pink box");
+
+        String findResponse = braun.getResponse("find \"pink rabbit\"");
+        assertTrue(findResponse.contains("Here are the matching tasks in your list:"));
+        assertTrue(findResponse.contains("1.[T][ ] pink rabbit doll"));
+        assertFalse(findResponse.contains("rabbit in pink box"));
+    }
+
+    @Test
+    public void getResponse_findDateOrTime_matchesScheduledTasks() {
+        Braun braun = createTestBraun();
+        braun.getResponse("deadline submit monthly report /by 2026-08-30 1700");
+
+        String findByFormattedDate = braun.getResponse("find Aug 30");
+        assertTrue(findByFormattedDate.contains("submit monthly report"));
+
+        String findByIsoDate = braun.getResponse("find 2026-08-30");
+        assertTrue(findByIsoDate.contains("submit monthly report"));
+    }
+
+    @Test
+    public void getResponse_findEmptyQuotes_returnsErrorMessage() {
+        Braun braun = createTestBraun();
+        String response = braun.getResponse("find \"\"   ");
+        assertTrue(response.contains("*static* Please specify a keyword to search for (e.g. find book)."));
     }
 }
