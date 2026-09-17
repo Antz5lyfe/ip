@@ -1,6 +1,7 @@
 package braun.task;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 import braun.exception.BraunException;
 import braun.util.DateTimeUtil;
@@ -103,5 +104,31 @@ public class Event extends Task {
     @Override
     public String toFileFormat() {
         return "E | " + super.toFileFormat() + " | " + from.formatForFile() + " | " + to.formatForFile();
+    }
+
+    /**
+     * Compares this event task with another object for equality.
+     *
+     * @param other the object to compare against.
+     * @return {@code true} if both tasks have the same description, start time, and end time; {@code false} otherwise.
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (!super.equals(other)) {
+            return false;
+        }
+        Event event = (Event) other;
+        return from.formatForFile().equals(event.from.formatForFile())
+                && to.formatForFile().equals(event.to.formatForFile());
+    }
+
+    /**
+     * Returns a hash code based on description, start time, and end time.
+     *
+     * @return integer hash code.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), from.formatForFile(), to.formatForFile());
     }
 }

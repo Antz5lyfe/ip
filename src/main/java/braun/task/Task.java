@@ -1,6 +1,7 @@
 package braun.task;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 /**
  * Represents a task with a description and a completion status.
@@ -94,5 +95,34 @@ public class Task {
      */
     public boolean isOnDate(LocalDate queryDate) {
         return false;
+    }
+
+    /**
+     * Compares this task with another object for equality.
+     * Two tasks are equal if they have the same class type and identical description.
+     *
+     * @param other the object to compare against.
+     * @return {@code true} if both tasks are equivalent; {@code false} otherwise.
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+        Task task = (Task) other;
+        return description.equalsIgnoreCase(task.description);
+    }
+
+    /**
+     * Returns a hash code based on the task description.
+     *
+     * @return integer hash code.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(description.toLowerCase());
     }
 }
