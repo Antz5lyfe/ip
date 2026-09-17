@@ -22,6 +22,13 @@ import braun.task.Todo;
  */
 public class Storage {
 
+    private static final String DELIMITER_REGEX = " \\| ";
+    private static final String TYPE_TODO = "T";
+    private static final String TYPE_DEADLINE = "D";
+    private static final String TYPE_EVENT = "E";
+    private static final String STATUS_DONE = "1";
+    private static final String STATUS_UNDONE = "0";
+
     private final Path filePath;
 
     /**
@@ -118,7 +125,7 @@ public class Storage {
      */
     public static Task parseTask(String line) throws BraunException {
         assert line != null : "Line to parse cannot be null.";
-        String[] parts = line.split(" \\| ");
+        String[] parts = line.split(DELIMITER_REGEX);
         if (parts.length < 3) {
             throw new BraunException("Insufficient fields in line");
         }
@@ -133,32 +140,44 @@ public class Storage {
 
         Task task;
         switch (type) {
-        case "T":
-            task = new Todo(description);
+        case TYPE_TODO:
+            task = parseTodo(description);
             break;
-        case "D":
-            if (parts.length < 4 || parts[3].trim().isEmpty()) {
-                throw new BraunException("Deadline is missing due date/time");
-            }
-            task = new Deadline(description, parts[3].trim());
+        case TYPE_DEADLINE:
+            task = parseDeadline(parts, description);
             break;
-        case "E":
-            if (parts.length < 5 || parts[3].trim().isEmpty() || parts[4].trim().isEmpty()) {
-                throw new BraunException("Event is missing start or end date/time");
-            }
-            task = new Event(description, parts[3].trim(), parts[4].trim());
+        case TYPE_EVENT:
+            task = parseEvent(parts, description);
             break;
         default:
             throw new BraunException("Unknown task type identifier: " + type);
         }
 
-        if (status.equals("1")) {
+        if (status.equals(STATUS_DONE)) {
             task.markAsDone();
-        } else if (!status.equals("0")) {
+        } else if (!status.equals(STATUS_UNDONE)) {
             throw new BraunException("Invalid task completion status: " + status);
         }
 
         assert task != null : "Parsed task instance must not be null.";
         return task;
+    }
+
+    private static Task parseTodo(String description) {
+        return new Todo(description);
+    }
+
+    private static Task parseDeadline(String[] parts, String description) throws BraunException {
+        if (parts.length < 4 || parts[3].trim().isEmpty()) {
+            throw new BraunException("Deadline is missing due date/time");
+        }
+        return new Deadline(description, parts[3].trim());
+    }
+
+    private static Task parseEvent(String[] parts, String description) throws BraunException {
+        if (parts.length < 5 || parts[3].trim().isEmpty() || parts[4].trim().isEmpty()) {
+            throw new BraunException("Event is missing start or end date/time");
+        }
+        return new Event(description, parts[3].trim(), parts[4].trim());
     }
 }
