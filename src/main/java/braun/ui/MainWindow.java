@@ -39,11 +39,14 @@ public class MainWindow extends AnchorPane {
     }
 
     /**
-     * Initializes the controller and binds the scroll pane to the dialog container height.
+     * Initializes the controller, binds the scroll pane to dialog container height,
+     * and binds container width to scroll pane width for responsive resizing.
      */
     @FXML
     public void initialize() {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
+        dialogContainer.prefWidthProperty().bind(scrollPane.widthProperty().subtract(15));
+        Platform.runLater(() -> userInput.requestFocus());
     }
 
     /**
@@ -61,7 +64,8 @@ public class MainWindow extends AnchorPane {
 
     /**
      * Handles user input triggered by pressing Enter or clicking the Send button.
-     * Queries Braun for a response, appends dialog boxes, and initiates exit if requested.
+     * Queries Braun for a response, styles error transmissions distinctly,
+     * and initiates exit if requested.
      */
     @FXML
     private void handleUserInput() {
@@ -71,11 +75,17 @@ public class MainWindow extends AnchorPane {
         }
 
         String response = braun.getResponse(input);
+        boolean isError = response.startsWith("*static*") || response.startsWith("*bzzzt* Invalid");
+        DialogBox braunDialog = isError
+                ? DialogBox.getBraunErrorDialog(response, braunImage)
+                : DialogBox.getBraunDialog(response, braunImage);
+
         dialogContainer.getChildren().addAll(
                 DialogBox.getUserDialog(input, userImage),
-                DialogBox.getBraunDialog(response, braunImage)
+                braunDialog
         );
         userInput.clear();
+        userInput.requestFocus();
 
         if (input.trim().equalsIgnoreCase("bye")) {
             userInput.setDisable(true);

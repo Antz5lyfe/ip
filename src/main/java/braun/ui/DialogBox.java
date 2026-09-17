@@ -47,6 +47,8 @@ public class DialogBox extends HBox {
         Circle clip = new Circle(25, 25, 25);
         displayPicture.setClip(clip);
         displayPicture.getStyleClass().add("avatar-view");
+
+        dialog.maxWidthProperty().bind(widthProperty().subtract(90));
     }
 
     /**
@@ -84,6 +86,21 @@ public class DialogBox extends HBox {
         DialogBox db = new DialogBox(text, img);
         db.flip();
         db.dialog.getStyleClass().add("braun-dialog");
+        return db;
+    }
+
+    /**
+     * Creates a dialog box representing an error broadcast response from Braun,
+     * styled with a high-visibility crimson warning theme.
+     *
+     * @param text the error broadcast text.
+     * @param img Braun's CRT television avatar image.
+     * @return a configured and flipped {@code DialogBox} styled for error responses.
+     */
+    public static DialogBox getBraunErrorDialog(String text, Image img) {
+        DialogBox db = new DialogBox(text, img);
+        db.flip();
+        db.dialog.getStyleClass().add("braun-error-dialog");
         return db;
     }
 }
