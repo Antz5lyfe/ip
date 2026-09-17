@@ -37,6 +37,7 @@ public class Storage {
      * @param filePath relative or absolute path string to the data file.
      */
     public Storage(String filePath) {
+        assert filePath != null : "Storage filePath string must not be null.";
         this.filePath = Paths.get(filePath);
     }
 
@@ -93,6 +94,7 @@ public class Storage {
      * @throws BraunException if an I/O error occurs while creating directories or writing the file.
      */
     public void save(ArrayList<Task> tasks) throws BraunException {
+        assert tasks != null : "Tasks collection to save cannot be null.";
         try {
             Path parentDir = filePath.getParent();
             if (parentDir != null && Files.notExists(parentDir)) {
@@ -122,6 +124,7 @@ public class Storage {
      * @throws BraunException if the line is corrupted or has missing fields.
      */
     public static Task parseTask(String line) throws BraunException {
+        assert line != null : "Line to parse cannot be null.";
         String[] parts = line.split(DELIMITER_REGEX);
         if (parts.length < 3) {
             throw new BraunException("Insufficient fields in line");
@@ -156,6 +159,7 @@ public class Storage {
             throw new BraunException("Invalid task completion status: " + status);
         }
 
+        assert task != null : "Parsed task instance must not be null.";
         return task;
     }
 

@@ -55,9 +55,11 @@ public class Braun {
      * @param filePath path to the local task persistence file.
      */
     public Braun(String filePath) {
+        assert filePath != null : "Storage file path must not be null.";
         this.ui = new Ui();
         this.storage = new Storage(filePath);
         this.tasks = storage.load();
+        assert this.tasks != null : "Task list loaded from storage must not be null.";
     }
 
     /**
@@ -76,6 +78,7 @@ public class Braun {
      * @return Braun's theatrical broadcast response string.
      */
     public String getResponse(String input) {
+        assert input != null : "User input string cannot be null.";
         try {
             return executeCommand(input);
         } catch (BraunException e) {
@@ -128,6 +131,7 @@ public class Braun {
      * @throws BraunException if the command is unrecognized or has invalid parameters.
      */
     public String executeCommand(String input) throws BraunException {
+        assert input != null : "User command input cannot be null.";
         String trimmed = input.trim();
         if (trimmed.isEmpty()) {
             return "";
@@ -252,6 +256,7 @@ public class Braun {
             throw new BraunException("*bzzzt* Invalid broadcast index! Task not found.");
         }
 
+        assert index >= 0 && index < tasks.size() : "Task index must be within list bounds.";
         return index;
     }
 
@@ -374,6 +379,8 @@ public class Braun {
      * @throws BraunException if saving to disk fails.
      */
     private String addTask(Task task, String description) throws BraunException {
+        assert task != null : "Task to add must not be null.";
+        assert description != null && !description.isEmpty() : "Task description must not be null or empty.";
         tasks.add(task);
         storage.save(tasks);
         return ui.formatAddedTask(task, tasks.size(), description);
