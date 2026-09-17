@@ -61,6 +61,7 @@ public class DateTimeUtil {
          * @param time the time component, or {@code null} if only a date was specified.
          */
         public TaskDateTime(LocalDate date, LocalTime time) {
+            assert date != null : "Date component of TaskDateTime must not be null.";
             this.date = date;
             this.time = time;
         }
@@ -236,6 +237,7 @@ public class DateTimeUtil {
      * @return formatted date string.
      */
     public static String formatDate(LocalDate date) {
+        assert date != null : "Date to format cannot be null.";
         return date.format(DISPLAY_DATE_FORMAT);
     }
 }

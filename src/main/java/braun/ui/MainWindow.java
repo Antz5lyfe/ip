@@ -52,6 +52,7 @@ public class MainWindow extends AnchorPane {
      * @param b the Braun logic instance.
      */
     public void setBraun(Braun b) {
+        assert b != null : "Braun application instance cannot be null.";
         braun = b;
         dialogContainer.getChildren().add(
                 DialogBox.getBraunDialog(braun.getWelcomeMessage(), braunImage)
