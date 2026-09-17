@@ -380,6 +380,11 @@ public class Braun {
             throw new BraunException("*static* Please specify deadline due time using /by <time>.");
         }
 
+        int secondByIndex = body.toLowerCase().indexOf(DELIMITER_BY, byIndex + DELIMITER_BY.length());
+        if (secondByIndex != -1) {
+            throw new BraunException("*static* Multiple /by delimiters detected! Please specify only one deadline due time.");
+        }
+
         String desc = body.substring(0, byIndex).trim();
         String by = body.substring(byIndex + DELIMITER_BY.length()).trim();
         if (desc.isEmpty() || by.isEmpty()) {
@@ -404,6 +409,12 @@ public class Braun {
             throw new BraunException("*static* Please specify event duration using /from <start> /to <end>.");
         }
 
+        int secondFromIndex = body.toLowerCase().indexOf(DELIMITER_FROM, fromIndex + DELIMITER_FROM.length());
+        int secondToIndex = body.toLowerCase().indexOf(DELIMITER_TO, toIndex + DELIMITER_TO.length());
+        if (secondFromIndex != -1 || secondToIndex != -1) {
+            throw new BraunException("*static* Multiple /from or /to delimiters detected! Please specify only one event interval.");
+        }
+
         String desc = body.substring(0, fromIndex).trim();
         String from = body.substring(fromIndex + DELIMITER_FROM.length(), toIndex).trim();
         String to = body.substring(toIndex + DELIMITER_TO.length()).trim();
@@ -420,11 +431,15 @@ public class Braun {
      * @param task the task to store.
      * @param description description used for lore remark matching.
      * @return formatted task addition response string.
-     * @throws BraunException if saving to disk fails.
+     * @throws BraunException if saving to disk fails or if a duplicate task already exists.
      */
     private String addTask(Task task, String description) throws BraunException {
         assert task != null : "Task to add must not be null.";
         assert description != null && !description.isEmpty() : "Task description must not be null or empty.";
+        if (tasks.contains(task)) {
+            throw new BraunException("*static* Duplicate broadcast task detected! '"
+                    + task + "' is already logged on tonight's schedule.");
+        }
         tasks.add(task);
         storage.save(tasks);
         return ui.formatAddedTask(task, tasks.size(), description);

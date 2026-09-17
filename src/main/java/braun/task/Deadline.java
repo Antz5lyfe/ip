@@ -1,6 +1,7 @@
 package braun.task;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 import braun.exception.BraunException;
 import braun.util.DateTimeUtil;
@@ -76,5 +77,30 @@ public class Deadline extends Task {
     @Override
     public String toFileFormat() {
         return "D | " + super.toFileFormat() + " | " + by.formatForFile();
+    }
+
+    /**
+     * Compares this deadline task with another object for equality.
+     *
+     * @param other the object to compare against.
+     * @return {@code true} if both tasks have the same description and due time; {@code false} otherwise.
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (!super.equals(other)) {
+            return false;
+        }
+        Deadline deadline = (Deadline) other;
+        return by.formatForFile().equals(deadline.by.formatForFile());
+    }
+
+    /**
+     * Returns a hash code based on the description and due date/time.
+     *
+     * @return integer hash code.
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), by.formatForFile());
     }
 }

@@ -135,4 +135,34 @@ public class BraunTest {
         String response = braun.getResponse("find \"\"   ");
         assertTrue(response.contains("*static* Please specify a keyword to search for (e.g. find book)."));
     }
+
+    @Test
+    public void getResponse_duplicateTodo_returnsErrorMessage() {
+        Braun braun = createTestBraun();
+        braun.getResponse("todo examine pink rabbit doll");
+        String duplicateResponse = braun.getResponse("todo examine pink rabbit doll");
+        assertTrue(duplicateResponse.contains("*static* Duplicate broadcast task detected!"));
+    }
+
+    @Test
+    public void getResponse_duplicateDeadline_returnsErrorMessage() {
+        Braun braun = createTestBraun();
+        braun.getResponse("deadline submit monthly report /by 2026-08-30 1700");
+        String duplicateResponse = braun.getResponse("deadline submit monthly report /by 2026-08-30 1700");
+        assertTrue(duplicateResponse.contains("*static* Duplicate broadcast task detected!"));
+    }
+
+    @Test
+    public void getResponse_multipleByDelimiters_returnsErrorMessage() {
+        Braun braun = createTestBraun();
+        String response = braun.getResponse("deadline submit report /by 2026-08-30 1700 /by 2026-09-01 1800");
+        assertTrue(response.contains("*static* Multiple /by delimiters detected!"));
+    }
+
+    @Test
+    public void getResponse_multipleFromOrToDelimiters_returnsErrorMessage() {
+        Braun braun = createTestBraun();
+        String response = braun.getResponse("event meeting /from 2pm /to 3pm /to 4pm");
+        assertTrue(response.contains("*static* Multiple /from or /to delimiters detected!"));
+    }
 }
