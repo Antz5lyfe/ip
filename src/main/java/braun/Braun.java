@@ -3,6 +3,9 @@ package braun;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import braun.exception.BraunException;
@@ -38,6 +41,8 @@ public class Braun {
     private static final String DELIMITER_BY = "/by ";
     private static final String DELIMITER_FROM = "/from ";
     private static final String DELIMITER_TO = "/to ";
+
+    private static final Pattern SEARCH_TOKEN_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
 
     private final Storage storage;
     private final Ui ui;
@@ -205,24 +210,68 @@ public class Braun {
     }
 
     /**
-     * Searches and displays tasks containing the specified keyword in their description.
+     * Extracts individual search terms from the raw query string.
+     * Supports quoted phrases (e.g. {@code "pink rabbit"}) as single terms,
+     * and splits unquoted tokens by whitespace.
+     *
+     * @param query the search query string.
+     * @return a list of lowercase search terms.
+     */
+    private List<String> extractSearchTerms(String query) {
+        assert query != null : "Search query cannot be null.";
+        List<String> terms = new ArrayList<>();
+        Matcher matcher = SEARCH_TOKEN_PATTERN.matcher(query);
+        while (matcher.find()) {
+            String term = (matcher.group(1) != null) ? matcher.group(1).trim() : matcher.group(2).trim();
+            if (!term.isEmpty()) {
+                terms.add(term.toLowerCase());
+            }
+        }
+        return terms;
+    }
+
+    /**
+     * Checks if a task matches any of the provided search terms.
+     * Searches across both the task display format (including formatted dates and status)
+     * and the underlying file format (including ISO dates).
+     *
+     * @param task the task to evaluate.
+     * @param searchTerms list of lowercase search terms.
+     * @return {@code true} if the task matches at least one search term; {@code false} otherwise.
+     */
+    private boolean matchesAnyTerm(Task task, List<String> searchTerms) {
+        assert task != null : "Task to match must not be null.";
+        assert searchTerms != null : "Search terms list must not be null.";
+        String taskDisplay = task.toString().toLowerCase();
+        String taskStorage = task.toFileFormat().toLowerCase();
+        return searchTerms.stream()
+                .anyMatch(term -> taskDisplay.contains(term) || taskStorage.contains(term));
+    }
+
+    /**
+     * Searches and displays tasks containing any of the specified search terms or phrases.
      *
      * @param input the raw find command string.
      * @return formatted matching tasks response string.
-     * @throws BraunException if the keyword argument is missing.
+     * @throws BraunException if the query is missing or contains no valid search terms.
      */
     private String handleFind(String input) throws BraunException {
-        String keyword = input.length() > CMD_FIND.length() ? input.substring(CMD_FIND.length()).trim() : "";
-        if (keyword.isEmpty()) {
+        assert input != null : "Find input command cannot be null.";
+        String query = input.length() > CMD_FIND.length() ? input.substring(CMD_FIND.length()).trim() : "";
+        if (query.isEmpty()) {
             throw new BraunException("*static* Please specify a keyword to search for (e.g. find book).");
         }
 
-        String searchLower = keyword.toLowerCase();
+        List<String> searchTerms = extractSearchTerms(query);
+        if (searchTerms.isEmpty()) {
+            throw new BraunException("*static* Please specify a keyword to search for (e.g. find book).");
+        }
+
         ArrayList<Task> matchingTasks = tasks.stream()
-                .filter(task -> task.getDescription().toLowerCase().contains(searchLower))
+                .filter(task -> matchesAnyTerm(task, searchTerms))
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        return ui.formatMatchingTasks(keyword, matchingTasks);
+        return ui.formatMatchingTasks(query, matchingTasks);
     }
 
     /**
