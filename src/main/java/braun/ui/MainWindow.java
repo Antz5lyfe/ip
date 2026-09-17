@@ -15,6 +15,9 @@ import javafx.util.Duration;
 /**
  * Controller for the main GUI layout of the Braun chatbot.
  * Manages the chat scroll pane, dialog container, and user command inputs.
+ *
+ * Adapted from the SE-EDU JavaFX tutorial:
+ * https://se-education.org/guides/tutorials/javaFxPart4.html
  */
 public class MainWindow extends AnchorPane {
 

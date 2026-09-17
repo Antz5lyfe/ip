@@ -18,6 +18,9 @@ import javafx.scene.shape.Circle;
 /**
  * Custom control representing a dialog bubble paired with an avatar in the GUI chat view.
  * Displays user entries on the right and Braun's broadcast messages on the left.
+ *
+ * Adapted from the SE-EDU JavaFX tutorial:
+ * https://se-education.org/guides/tutorials/javaFxPart4.html
  */
 public class DialogBox extends HBox {
 

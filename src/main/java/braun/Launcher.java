@@ -5,6 +5,8 @@ import javafx.application.Application;
 /**
  * Entry point for the Braun chatbot application.
  * Acts as a workaround to prevent JavaFX classpath/modulepath issues when packaged as a fat JAR.
+ *
+ * Solution adapted from https://se-education.org/guides/tutorials/javaFx.html
  */
 public class Launcher {
 

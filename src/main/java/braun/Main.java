@@ -12,6 +12,9 @@ import javafx.stage.Stage;
 
 /**
  * A graphical user interface application for Braun using JavaFX and FXML.
+ *
+ * Adapted from the SE-EDU JavaFX tutorial:
+ * https://se-education.org/guides/tutorials/javaFxPart4.html
  */
 public class Main extends Application {
 
