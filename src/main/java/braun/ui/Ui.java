@@ -3,6 +3,8 @@ package braun.ui;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import braun.task.Task;
 
@@ -173,9 +175,8 @@ public class Ui {
     public void showTaskList(ArrayList<Task> tasks) {
         System.out.println(DIVIDER);
         System.out.println(INDENT + "Here are the tasks in your list:");
-        for (int i = 0; i < tasks.size(); i++) {
-            System.out.println(INDENT + (i + 1) + "." + tasks.get(i));
-        }
+        IntStream.range(0, tasks.size())
+                .forEach(i -> System.out.println(INDENT + (i + 1) + "." + tasks.get(i)));
         System.out.println(DIVIDER);
     }
 
@@ -246,9 +247,8 @@ public class Ui {
             System.out.println(INDENT + "*static* No broadcast tasks scheduled for " + formattedDate + ".");
         } else {
             System.out.println(INDENT + "Here are the tasks scheduled for " + formattedDate + ":");
-            for (int i = 0; i < matchingTasks.size(); i++) {
-                System.out.println(INDENT + (i + 1) + "." + matchingTasks.get(i));
-            }
+            IntStream.range(0, matchingTasks.size())
+                    .forEach(i -> System.out.println(INDENT + (i + 1) + "." + matchingTasks.get(i)));
         }
         System.out.println(DIVIDER);
     }
@@ -265,9 +265,8 @@ public class Ui {
             System.out.println(INDENT + "*static* No matching broadcast tasks found for: " + keyword);
         } else {
             System.out.println(INDENT + "Here are the matching tasks in your list:");
-            for (int i = 0; i < matchingTasks.size(); i++) {
-                System.out.println(INDENT + (i + 1) + "." + matchingTasks.get(i));
-            }
+            IntStream.range(0, matchingTasks.size())
+                    .forEach(i -> System.out.println(INDENT + (i + 1) + "." + matchingTasks.get(i)));
         }
         System.out.println(DIVIDER);
     }
@@ -318,11 +317,12 @@ public class Ui {
      * @return formatted task list string.
      */
     public String formatTaskList(ArrayList<Task> tasks) {
-        StringBuilder sb = new StringBuilder("Here are the tasks in your list:");
-        for (int i = 0; i < tasks.size(); i++) {
-            sb.append("\n").append(i + 1).append(".").append(tasks.get(i));
-        }
-        return sb.toString();
+        String entries = IntStream.range(0, tasks.size())
+                .mapToObj(i -> (i + 1) + "." + tasks.get(i))
+                .collect(Collectors.joining("\n"));
+        return entries.isEmpty()
+                ? "Here are the tasks in your list:"
+                : "Here are the tasks in your list:\n" + entries;
     }
 
     /**
@@ -384,11 +384,10 @@ public class Ui {
         if (matchingTasks.isEmpty()) {
             return "*static* No broadcast tasks scheduled for " + formattedDate + ".";
         }
-        StringBuilder sb = new StringBuilder("Here are the tasks scheduled for " + formattedDate + ":");
-        for (int i = 0; i < matchingTasks.size(); i++) {
-            sb.append("\n").append(i + 1).append(".").append(matchingTasks.get(i));
-        }
-        return sb.toString();
+        String entries = IntStream.range(0, matchingTasks.size())
+                .mapToObj(i -> (i + 1) + "." + matchingTasks.get(i))
+                .collect(Collectors.joining("\n"));
+        return "Here are the tasks scheduled for " + formattedDate + ":\n" + entries;
     }
 
     /**
@@ -402,10 +401,9 @@ public class Ui {
         if (matchingTasks.isEmpty()) {
             return "*static* No matching broadcast tasks found for: " + keyword;
         }
-        StringBuilder sb = new StringBuilder("Here are the matching tasks in your list:");
-        for (int i = 0; i < matchingTasks.size(); i++) {
-            sb.append("\n").append(i + 1).append(".").append(matchingTasks.get(i));
-        }
-        return sb.toString();
+        String entries = IntStream.range(0, matchingTasks.size())
+                .mapToObj(i -> (i + 1) + "." + matchingTasks.get(i))
+                .collect(Collectors.joining("\n"));
+        return "Here are the matching tasks in your list:\n" + entries;
     }
 }

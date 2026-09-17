@@ -3,6 +3,7 @@ package braun;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import braun.exception.BraunException;
 import braun.storage.Storage;
@@ -169,12 +170,9 @@ public class Braun {
         }
 
         LocalDate queryDate = DateTimeUtil.parseDate(arg);
-        ArrayList<Task> matchingTasks = new ArrayList<>();
-        for (Task task : tasks) {
-            if (task.isOnDate(queryDate)) {
-                matchingTasks.add(task);
-            }
-        }
+        ArrayList<Task> matchingTasks = tasks.stream()
+                .filter(task -> task.isOnDate(queryDate))
+                .collect(Collectors.toCollection(ArrayList::new));
 
         String formattedDate = DateTimeUtil.formatDate(queryDate);
         return ui.formatTasksOnDate(formattedDate, matchingTasks);
@@ -194,12 +192,9 @@ public class Braun {
         }
 
         String searchLower = keyword.toLowerCase();
-        ArrayList<Task> matchingTasks = new ArrayList<>();
-        for (Task task : tasks) {
-            if (task.getDescription().toLowerCase().contains(searchLower)) {
-                matchingTasks.add(task);
-            }
-        }
+        ArrayList<Task> matchingTasks = tasks.stream()
+                .filter(task -> task.getDescription().toLowerCase().contains(searchLower))
+                .collect(Collectors.toCollection(ArrayList::new));
 
         return ui.formatMatchingTasks(keyword, matchingTasks);
     }

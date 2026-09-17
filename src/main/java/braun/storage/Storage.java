@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import braun.exception.BraunException;
 import braun.task.Deadline;
@@ -92,10 +93,9 @@ public class Storage {
                 Files.createDirectories(parentDir);
             }
 
-            List<String> lines = new ArrayList<>();
-            for (Task task : tasks) {
-                lines.add(task.toFileFormat());
-            }
+            List<String> lines = tasks.stream()
+                    .map(Task::toFileFormat)
+                    .collect(Collectors.toList());
 
             Files.write(filePath, lines, StandardCharsets.UTF_8);
         } catch (IOException e) {
