@@ -21,11 +21,25 @@ repositories {
 
 dependencies {
     String jUnitVersion = '5.14.4'
+    String javaFxVersion = '21.0.6'
 
     testImplementation "org.junit.jupiter:junit-jupiter-api:${jUnitVersion}"
 
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${jUnitVersion}"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.14.4'
+
+    // Bundle JavaFX native libraries for all target platforms so that the
+    // produced fat JAR (braun.jar) runs on Windows, Linux, and macOS without
+    // needing a separate JavaFX installation on the target machine.
+    // The org.openjfx.javafxplugin only adds the current host-platform
+    // classifier; the four blocks below add the remaining three platforms.
+    for (String platform : ['win', 'linux', 'mac', 'mac-aarch64']) {
+        implementation "org.openjfx:javafx-base:${javaFxVersion}:${platform}"
+        implementation "org.openjfx:javafx-controls:${javaFxVersion}:${platform}"
+        implementation "org.openjfx:javafx-fxml:${javaFxVersion}:${platform}"
+        implementation "org.openjfx:javafx-graphics:${javaFxVersion}:${platform}"
+        implementation "org.openjfx:javafx-media:${javaFxVersion}:${platform}"
+    }
 }
 
 test {
